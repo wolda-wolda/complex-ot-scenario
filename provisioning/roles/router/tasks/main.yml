@@ -1,66 +1,31 @@
 ---
-- name: Drop direct connections from Attacker to Engineering Workstation
+# 1. Allow the attacker (Corporate Net) to SSH into the EWS
+- name: Allow SSH (22) traffic from Corporate to Engineering Workstation
   iptables:
     chain: FORWARD
-    source: 10.10.10.50
+    source: 10.10.10.0/24
     destination: 192.168.20.20
-    jump: DROP
-    action: insert
-
-- name: Drop direct connections from Attacker to OpenPLC Node
-  iptables:
-    chain: FORWARD
-    source: 10.10.10.50
-    destination: 192.168.20.10
-    jump: DROP
-    action: insert
-
-- name: Drop direct Admin (8080) traffic from SCADA HMI to OpenPLC Node
-  iptables:
-    chain: FORWARD
-    source: 192.168.100.10
-    destination: 192.168.20.10
-    protocol: tcp
-    destination_port: "8080"
-    jump: DROP
-    action: insert
-
-- name: Drop SSH (22) traffic from SCADA HMI to OpenPLC Node
-  iptables:
-    chain: FORWARD
-    source: 192.168.100.10
-    destination: 192.168.20.10
     protocol: tcp
     destination_port: "22"
+    jump: ACCEPT
+    action: insert
+
+# 2. Prevent the attacker from bypassing the EWS and hitting the PLC directly
+- name: Drop all direct connections from Corporate to OpenPLC Node
+  iptables:
+    chain: FORWARD
+    source: 10.10.10.0/24
+    destination: 192.168.20.10
     jump: DROP
     action: insert
 
-- name: Allow Modbus TCP (502) traffic from SCADA HMI to OpenPLC Node
-  iptables:
-    chain: FORWARD
-    source: 192.168.100.10
-    destination: 192.168.20.10
-    protocol: tcp
-    destination_port: "502"
-    jump: ACCEPT
-    action: insert
-
-- name: Allow API (5000) traffic from SCADA HMI to Engineering Workstation
-  iptables:
-    chain: FORWARD
-    source: 192.168.100.10
-    destination: 192.168.20.20
-    protocol: tcp
-    destination_port: "5000"
-    jump: ACCEPT
-    action: insert
-
-- name: Allow Admin (8080) traffic from Engineering Workstation to OpenPLC Node
+# 3. Allow Modbus TCP (502) traffic from the EWS to the OpenPLC Node
+- name: Allow Modbus TCP (502) traffic from Engineering Workstation to OpenPLC Node
   iptables:
     chain: FORWARD
     source: 192.168.20.20
     destination: 192.168.20.10
     protocol: tcp
-    destination_port: "8080"
+    destination_port: "502"
     jump: ACCEPT
     action: insert

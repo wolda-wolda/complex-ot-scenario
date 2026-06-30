@@ -1,104 +1,34 @@
 ---
-- name: Create engineer user group
+- name: Install OT engineering tools (living off the land)
+  apt:
+    name:
+      - python3-pip
+      - nmap
+    state: present
+    update_cache: yes
+
+- name: Install Modbus CLI via pip (simulates EWS software)
+  pip:
+    name: modbus_cli
+    executable: pip3
+
+- name: Create operator user group
   group:
-    name: engineer
+    name: operator
     state: present
 
-- name: Create engineer user
+- name: Create operator user with weak credentials
   user:
-    name: engineer
-    group: engineer
+    name: operator
+    group: operator
+    password: "$6$IQBxuzI0FCQdu5gU$NIohLB40Hwc7Uclsu9bIIMtOTRIPTLC1Bw39cwboypppwcpb1rNwXrS8up/SWB5056dSEuLZSZEW0CxMR5Pej0"
     shell: /bin/bash
-    home: /home/engineer
+    home: /home/operator
     create_home: yes
 
-- name: Create EWS flag file
-  copy:
-    dest: /home/engineer/flag2.txt
-    content: |
-      FLAG{EWS_PIVOT_SUCCESS}
-    owner: engineer
-    group: engineer
-    mode: '0600'
-
-- name: Create EWS vulnerable API python script
-  copy:
-    dest: /opt/ews_api.py
-    content: |
-      import socket
-      import json
-      import subprocess
-      import threading
-
-      def handle_client(client_socket):
-          try:
-              request = client_socket.recv(4096).decode('utf-8')
-              if not request:
-                  return
-              
-              # Simple HTTP header/body parser
-              parts = request.split('\r\n\r\n', 1)
-              header_part = parts[0]
-              body = parts[1] if len(parts) > 1 else ""
-              
-              lines = header_part.split('\r\n')
-              
-              # Handle POST JSON command
-              response_body = {"status": "error", "message": "Invalid request"}
-              if len(lines) > 0 and "POST" in lines[0]:
-                  try:
-                      data = json.loads(body)
-                      if "cmd" in data:
-                          cmd_out = subprocess.check_output(data['cmd'], shell=True, stderr=subprocess.STDOUT)
-                          response_body = {"status": "success", "output": cmd_out.decode('utf-8')}
-                      else:
-                          response_body = {"status": "error", "message": "Missing 'cmd' parameter"}
-                  except Exception as e:
-                      response_body = {"status": "error", "message": str(e)}
-              
-              resp_json = json.dumps(response_body)
-              response = f"HTTP/1.1 200 OK\r\nContent-Type: application/json\r\nContent-Length: {len(resp_json)}\r\n\r\n{resp_json}"
-              client_socket.sendall(response.encode('utf-8'))
-          except Exception as e:
-              pass
-          finally:
-              client_socket.close()
-
-      def main():
-          server = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-          server.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)
-          server.bind(('0.0.0.0', 5000))
-          server.listen(5)
-          while True:
-              client, addr = server.accept()
-              t = threading.Thread(target=handle_client, args=(client,))
-              t.start()
-
-      if __name__ == '__main__':
-          main()
-    mode: '0755'
-
-- name: Create systemd unit file for EWS API
-  copy:
-    dest: /etc/systemd/system/ews.service
-    content: |
-      [Unit]
-      Description=EWS Management API
-      After=network.target
-
-      [Service]
-      Type=simple
-      ExecStart=/usr/bin/python3 /opt/ews_api.py
-      Restart=always
-      User=engineer
-      Group=engineer
-
-      [Install]
-      WantedBy=multi-user.target
-
-- name: Reload systemd, enable, and start ews
-  systemd:
-    name: ews
-    daemon_reload: yes
-    state: started
-    enabled: yes
+- name: Ensure SSH is enabled and allows password authentication
+  lineinfile:
+    path: /etc/ssh/sshd_config
+    regexp: '^PasswordAuthentication'
+    line: 'PasswordAuthentication yes'
+  notify: restart ssh

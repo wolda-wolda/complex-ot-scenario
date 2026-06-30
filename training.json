@@ -1,90 +1,30 @@
 {
-  "title": "Complex OT Sabotage Sandbox",
-  "description": "A multi-zone security training scenario modeling Purdue Level 3 (SCADA), Level 2 (Engineering Workstation), and Level 1 (PLC) networks with pivoting and web admin compromise.",
-  "prerequisites": [],
-  "outcomes": [
-    "Compromise unauthenticated Node-RED flows to gain Initial Access.",
-    "Pivot laterally from SCADA network to an internal Engineering Workstation via API exploitation.",
-    "Abuse default web admin portal credentials on an isolated PLC without using SSH keys."
-  ],
-  "state": "RELEASED",
-  "show_stepper_bar": true,
+  "title": "Industrial Protocol Manipulation Sandbox",
+  "description": "Simulates an attacker moving from a corporate network to an isolated OT network by leveraging weak EWS credentials, followed by unauthenticated Modbus TCP manipulation to halt a critical process.",
   "levels": [
     {
-      "title": "Welcome to the Complex OT Sandbox",
-      "level_type": "INFO_LEVEL",
-      "order": 0,
-      "estimated_duration": 1,
-      "minimal_possible_solve_time": null,
-      "content": "# Complex OT Simulation Sandbox\n\nWelcome to the advanced multi-zone sandbox!\n\nThis scenario contains:\n* **`attacker-host`**: Kali workstation on Level 3 management network.\n* **`scada-hmi`**: Node-RED SCADA HMI VM.\n* **`engineering-station`**: Engineering Workstation (EWS) running administrative maintenance API.\n* **`openplc-node`**: Virtualized PLC controlling simulated processes."
-    },
-    {
-      "title": "Access the Attacker Host",
-      "level_type": "ACCESS_LEVEL",
+      "title": "Initial Access & Recon",
+      "level_type": "TRAINING_LEVEL",
       "order": 1,
-      "estimated_duration": 2,
-      "minimal_possible_solve_time": null,
-      "passkey": "start",
-      "cloud_content": "Select the **`attacker-host`** node, open the console, and input the passkey **`start`**.",
-      "local_content": "Input the passkey **`start`** to unlock the first stage."
+      "estimated_duration": 10,
+      "answer": "192.168.20.10",
+      "content": "You are on the corporate network (`10.10.10.50`). A poorly configured Engineering Workstation (`192.168.20.20`) acts as a bridge to the OT network. Compromise the EWS using default credentials (`operator` / `operator123`). From there, perform internal reconnaissance. \n\nWhat is the IP address of the active PLC on the control subnet?",
+      "solution": "SSH into `operator@192.168.20.20`. Use `ping` or `nmap` on the `192.168.20.0/24` subnet to discover the PLC at `192.168.20.10`."
     },
     {
-      "title": "SCADA HMI Compromise",
+      "title": "Process Sabotage (Modbus Manipulation)",
       "level_type": "TRAINING_LEVEL",
       "order": 2,
-      "estimated_duration": 5,
-      "minimal_possible_solve_time": null,
-      "answer": "FLAG{SCADA_HMI_COMPROMISED}",
-      "content": "Find and exploit the Node-RED flow builder on `192.168.100.10:1880` to read `/root/flag.txt`.\n\nWhat is the HMI flag?",
-      "solution": "Add an inject node wired to an exec node configured to execute 'cat /root/flag.txt' and output to debug to read the flag.",
-      "hints": [
-        {
-          "title": "Node-RED Exec Node",
-          "content": "Use the 'exec' node under the advanced category in the palette to execute shell commands as root.",
-          "hint_penalty": 0,
-          "order": 0
-        }
-      ]
-    },
-    {
-      "title": "Engineering Station Pivot",
-      "level_type": "TRAINING_LEVEL",
-      "order": 3,
-      "estimated_duration": 10,
-      "minimal_possible_solve_time": null,
-      "answer": "FLAG{EWS_PIVOT_SUCCESS}",
-      "content": "Due to routing rules, you cannot reach the PLC directly from HMI on web admin port `8080`. However, you can communicate with the Engineering Workstation (EWS) on `192.168.100.20:5000`.\n\nExploit the API service on `192.168.100.20:5000` to execute commands and retrieve the flag located at `/home/engineer/flag2.txt` on the EWS.\n\nWhat is the EWS flag?",
-      "solution": "Send a POST request containing shell injection payload (e.g. '; cat /home/engineer/flag2.txt') to the EWS API service running on port 5000.",
-      "hints": [
-        {
-          "title": "API Analysis",
-          "content": "Query the API using curl to inspect the input parameter. Send a JSON body such as `{\"cmd\": \"status; cat /home/engineer/flag2.txt\"}` to exploit parameter execution.",
-          "hint_penalty": 0,
-          "order": 0
-        }
-      ]
-    },
-    {
-      "title": "PLC Control Logic Compromise",
-      "level_type": "TRAINING_LEVEL",
-      "order": 4,
       "estimated_duration": 15,
-      "minimal_possible_solve_time": null,
-      "answer": "FLAG{PLC_LOGIC_COMPROMISED}",
-      "content": "The EWS is allowed to manage the PLC on port `8080`. Connect to `192.168.20.10:8080` from EWS. Log in using default credentials, and find a way to execute system commands to write the flag to the web server directory. Then download `/root/flag3.txt` content.\n\nWhat is the PLC flag?",
-      "solution": "Authenticate to the OpenPLC admin panel, navigate to Hardware options, modify the Custom PSM Python Module code to write the flag to `/opt/OpenPLC_v3/webserver/st_files/flag.txt`, save, and compile it. Retrieve the flag from `http://192.168.20.10:8080/st_files/flag.txt`.",
+      "answer": "FLAG{PUMP_DISABLED_SUCCESS}",
+      "content": "The PLC at `192.168.20.10` controls a cooling pump mapped to Modbus Holding Register 0 (Address 40001). During normal operation, this register holds the value `1`. \n\nUsing the `modbus` CLI tool pre-installed on the EWS, write the value `0` to this register to halt the cooling pump. Once the value is zeroed, a safety mechanism will dump a diagnostic log to `/var/log/safety_override.txt` on the EWS containing your confirmation.",
+      "solution": "Run `modbus write 192.168.20.10 40001 0` from the EWS terminal. Read the generated file to get the confirmation code.",
       "hints": [
         {
-          "title": "OpenPLC Credentials",
-          "content": "The web interface default credentials are `openplc` / `openplc`.",
+          "title": "Modbus CLI Syntax",
+          "content": "Use the command `modbus write <IP> <Register> <Value>` to alter the controller's memory.",
           "hint_penalty": 0,
           "order": 0
-        },
-        {
-          "title": "Python Software Module (PSM)",
-          "content": "Under 'Hardware', write custom Python script inside the PSM text area and select 'Custom' hardware layer, then save/compile.",
-          "hint_penalty": 0,
-          "order": 1
         }
       ]
     }
