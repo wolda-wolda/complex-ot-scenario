@@ -36,6 +36,9 @@
 - name: Enable Modbus TCP on OpenPLC
   command: sqlite3 /opt/OpenPLC_v3/webserver/openplc.db "UPDATE settings SET value = '502' WHERE key = 'Modbus_port';"
 
+- name: Configure OpenPLC to start run mode automatically
+  command: sqlite3 /opt/OpenPLC_v3/webserver/openplc.db "UPDATE settings SET value = 'true' WHERE key = 'Start_run_mode';"
+
 - name: Reload systemd and start OpenPLC
   systemd:
     name: openplc

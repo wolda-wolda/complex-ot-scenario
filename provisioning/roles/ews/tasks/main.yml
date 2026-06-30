@@ -32,3 +32,63 @@
     regexp: '^PasswordAuthentication'
     line: 'PasswordAuthentication yes'
   notify: restart ssh
+
+- name: Install pymodbus via pip for safety monitor script
+  pip:
+    name: pymodbus
+    executable: pip3
+
+- name: Deploy safety monitor Python script
+  copy:
+    dest: /opt/safety_monitor.py
+    content: |
+      import time
+      try:
+          from pymodbus.client.sync import ModbusTcpClient
+      except ImportError:
+          from pymodbus.client import ModbusTcpClient
+
+      def main():
+          client = ModbusTcpClient('192.168.20.10', port=502)
+          while True:
+              try:
+                  if not client.connected:
+                      client.connect()
+                  result = client.read_holding_registers(0, 1)
+                  if not result.isError():
+                      value = result.registers[0]
+                      if value == 0:
+                          with open('/var/log/safety_override.txt', 'w') as f:
+                              f.write('FLAG{PUMP_DISABLED_SUCCESS}\n')
+                          while True:
+                              time.sleep(3600)
+              except Exception:
+                  pass
+              time.sleep(1)
+
+      if __name__ == '__main__':
+          main()
+    mode: '0755'
+
+- name: Deploy safety monitor systemd unit file
+  copy:
+    dest: /etc/systemd/system/safety-monitor.service
+    content: |
+      [Unit]
+      Description=OT Safety Override Monitor
+      After=network.target
+
+      [Service]
+      Type=simple
+      ExecStart=/usr/bin/python3 /opt/safety_monitor.py
+      Restart=always
+
+      [Install]
+      WantedBy=multi-user.target
+
+- name: Enable and start safety monitor service
+  systemd:
+    name: safety-monitor
+    daemon_reload: yes
+    state: restarted
+    enabled: yes
