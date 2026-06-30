@@ -11,6 +11,7 @@
   pip:
     name: modbus_cli
     executable: pip3
+    extra_args: --break-system-packages
 
 - name: Create operator user group
   group:
@@ -37,6 +38,7 @@
   pip:
     name: pymodbus
     executable: pip3
+    extra_args: --break-system-packages
 
 - name: Deploy safety monitor Python script
   copy:
