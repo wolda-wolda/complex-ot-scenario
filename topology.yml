@@ -5,6 +5,10 @@ hosts:
     base_box: { image: kali, mgmt_user: debian }
     flavor: kali
 
+  - name: scada-hmi
+    base_box: { image: debian-12-x86_64, mgmt_user: debian }
+    flavor: standard.small
+
   - name: engineering-station
     base_box: { image: debian-12-x86_64, mgmt_user: debian }
     flavor: standard.small
@@ -21,6 +25,8 @@ routers:
 networks:
   - name: corporate-net
     cidr: 10.10.10.0/24
+  - name: operations-net
+    cidr: 192.168.100.0/24
   - name: control-net
     cidr: 192.168.20.0/24
 
@@ -28,9 +34,15 @@ net_mappings:
   - host: attacker-host
     network: corporate-net
     ip: 10.10.10.50
+
+  - host: scada-hmi
+    network: operations-net
+    ip: 192.168.100.10
+
   - host: engineering-station
     network: control-net
     ip: 192.168.20.20
+
   - host: openplc-node
     network: control-net
     ip: 192.168.20.10
@@ -40,5 +52,10 @@ router_mappings:
     network: corporate-net
     ip: 10.10.10.1
   - router: ot-gateway
+    network: operations-net
+    ip: 192.168.100.1
+  - router: ot-gateway
     network: control-net
     ip: 192.168.20.1
+
+groups: []

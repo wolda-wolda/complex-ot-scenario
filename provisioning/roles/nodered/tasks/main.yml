@@ -67,3 +67,15 @@
     content: |
       FLAG{SCADA_HMI_COMPROMISED}
     mode: '0600'
+
+- name: Create operator credentials file on HMI to simulate credential leakage
+  copy:
+    dest: /home/debian/ews_credentials.txt
+    content: |
+      --- EWS Connection Parameters ---
+      Host: 192.168.20.20
+      User: operator
+      Pass: operator123
+    owner: debian
+    group: debian
+    mode: '0644'

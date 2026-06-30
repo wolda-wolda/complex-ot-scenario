@@ -1,28 +1,63 @@
 {
-  "title": "Industrial Protocol Manipulation Sandbox",
-  "description": "Simulates an attacker moving from a corporate network to an isolated OT network by leveraging weak EWS credentials, followed by unauthenticated Modbus TCP manipulation to halt a critical process.",
+  "title": "Industrial Control Hijack and Pivoting Sandbox",
+  "description": "Simulates a multi-hop breach from a corporate entry point, compromising an unauthenticated Node-RED HMI, stealing engineering credentials, pivoting to the EWS, and executing Modbus commands to disable a PLC cooling loop.",
   "levels": [
     {
-      "title": "Initial Access & Recon",
-      "level_type": "TRAINING_LEVEL",
+      "title": "Access the Attacker Workstation",
+      "level_type": "ACCESS_LEVEL",
       "order": 1,
-      "estimated_duration": 10,
-      "answer": "192.168.20.10",
-      "content": "You are on the corporate network (`10.10.10.50`). A poorly configured Engineering Workstation (`192.168.20.20`) acts as a bridge to the OT network. Compromise the EWS using default credentials (`operator` / `operator123`). From there, perform internal reconnaissance. \n\nWhat is the IP address of the active PLC on the control subnet?",
-      "solution": "SSH into `operator@192.168.20.20`. Use `ping` or `nmap` on the `192.168.20.0/24` subnet to discover the PLC at `192.168.20.10`."
+      "estimated_duration": 2,
+      "minimal_possible_solve_time": null,
+      "passkey": "start",
+      "cloud_content": "Select the **`attacker-host`** node, open the console, and input the passkey **`start`**.",
+      "local_content": "Input the passkey **`start`** to unlock the first stage."
     },
     {
-      "title": "Process Sabotage (Modbus Manipulation)",
+      "title": "SCADA HMI Compromise (Florida Oldsmar Hack)",
       "level_type": "TRAINING_LEVEL",
       "order": 2,
+      "estimated_duration": 10,
+      "answer": "FLAG{SCADA_HMI_COMPROMISED}",
+      "content": "You are on the corporate network. Direct access to the control network is blocked by the gateway firewall. However, the operations zone SCADA HMI is accessible.\n\nConnect to Node-RED on `192.168.100.10:1880`. Construct a flow to execute a command to read `/root/flag.txt`.\n\n*(Note: Also look inside `/home/debian/ews_credentials.txt` to find credentials for the next hop!)*",
+      "solution": "Drag an inject node wired to an exec node executing 'cat /root/flag.txt' and debug node. Deploy and click inject to output the flag. Run 'cat /home/debian/ews_credentials.txt' to retrieve the SSH credentials.",
+      "hints": [
+        {
+          "title": "Node-RED Shell Access",
+          "content": "Use the 'exec' node under the advanced tab to run bash commands as root.",
+          "hint_penalty": 0,
+          "order": 0
+        }
+      ]
+    },
+    {
+      "title": "EWS Pivot & Internal Recon (Ukraine Power Grid)",
+      "level_type": "TRAINING_LEVEL",
+      "order": 3,
+      "estimated_duration": 10,
+      "answer": "192.168.20.10",
+      "content": "Direct access to the control network remains blocked. Using the engineering credentials stolen from the SCADA HMI (`/home/debian/ews_credentials.txt`), establish an SSH connection to the Engineering Workstation (EWS) at `192.168.20.20`.\n\nFrom the EWS shell, scan the internal control subnet (`192.168.20.0/24`) using ping or nmap to identify the IP address of the active PLC.\n\nWhat is the IP of the PLC?",
+      "solution": "SSH into `operator@192.168.20.20` using password `operator123`. Run `nmap -sn 192.168.20.0/24` to discover the active PLC.",
+      "hints": [
+        {
+          "title": "Credential Recap",
+          "content": "Log in using: SSH operator@192.168.20.20, Password: operator123.",
+          "hint_penalty": 0,
+          "order": 0
+        }
+      ]
+    },
+    {
+      "title": "Process Sabotage (Modbus Hijack)",
+      "level_type": "TRAINING_LEVEL",
+      "order": 4,
       "estimated_duration": 15,
       "answer": "FLAG{PUMP_DISABLED_SUCCESS}",
-      "content": "The PLC at `192.168.20.10` controls a cooling pump mapped to Modbus Holding Register 0 (Address 40001). During normal operation, this register holds the value `1`. \n\nUsing the `modbus` CLI tool pre-installed on the EWS, write the value `0` to this register to halt the cooling pump. Once the value is zeroed, a safety mechanism will dump a diagnostic log to `/var/log/safety_override.txt` on the EWS containing your confirmation.",
-      "solution": "Run `modbus write 192.168.20.10 40001 0` from the EWS terminal. Read the generated file to get the confirmation code.",
+      "content": "The PLC at `192.168.20.10` controls a vital cooling pump mapped to Modbus Holding Register 0 (Address 40001). Under normal conditions, this register has the value `1`.\n\nFrom your EWS SSH terminal, use the pre-installed `modbus` CLI utility to write `0` to this register to disable the pump. Once zeroed, the safety logging system will write a log entry to `/var/log/safety_override.txt` containing the flag.\n\nWhat is the sabotage flag?",
+      "solution": "From the EWS shell, run: `modbus write 192.168.20.10 40001 0`. Then run `cat /var/log/safety_override.txt` to read the flag.",
       "hints": [
         {
           "title": "Modbus CLI Syntax",
-          "content": "Use the command `modbus write <IP> <Register> <Value>` to alter the controller's memory.",
+          "content": "The command is: `modbus write 192.168.20.10 40001 0`.",
           "hint_penalty": 0,
           "order": 0
         }

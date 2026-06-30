@@ -1,26 +1,28 @@
 ---
-# 1. Allow the attacker (Corporate Net) to SSH into the EWS
-- name: Allow SSH (22) traffic from Corporate to Engineering Workstation
+# 1. Allow Corporate network to access SCADA HMI Node-RED (1880)
+- name: Allow Node-RED traffic from Corporate to SCADA HMI
   iptables:
     chain: FORWARD
     source: 10.10.10.0/24
+    destination: 192.168.100.10
+    protocol: tcp
+    destination_port: "1880"
+    jump: ACCEPT
+    action: insert
+
+# 2. Allow SCADA HMI to SSH (22) into EWS (simulates lateral movement capability)
+- name: Allow SSH traffic from SCADA HMI to Engineering Workstation
+  iptables:
+    chain: FORWARD
+    source: 192.168.100.10
     destination: 192.168.20.20
     protocol: tcp
     destination_port: "22"
     jump: ACCEPT
     action: insert
 
-# 2. Prevent the attacker from bypassing the EWS and hitting the PLC directly
-- name: Drop all direct connections from Corporate to OpenPLC Node
-  iptables:
-    chain: FORWARD
-    source: 10.10.10.0/24
-    destination: 192.168.20.10
-    jump: DROP
-    action: insert
-
-# 3. Allow Modbus TCP (502) traffic from the EWS to the OpenPLC Node
-- name: Allow Modbus TCP (502) traffic from Engineering Workstation to OpenPLC Node
+# 3. Allow EWS to communicate with PLC via Modbus TCP (502)
+- name: Allow Modbus TCP traffic from Engineering Workstation to OpenPLC
   iptables:
     chain: FORWARD
     source: 192.168.20.20
@@ -28,4 +30,30 @@
     protocol: tcp
     destination_port: "502"
     jump: ACCEPT
+    action: insert
+
+# 4. Drop direct traffic from SCADA HMI to PLC (prevent bypassing EWS control)
+- name: Drop all direct traffic from SCADA HMI to PLC
+  iptables:
+    chain: FORWARD
+    source: 192.168.100.10
+    destination: 192.168.20.10
+    jump: DROP
+    action: insert
+
+# 5. Drop direct traffic from Corporate to EWS and PLC (enforce zone gateway constraints)
+- name: Drop all direct traffic from Corporate to EWS
+  iptables:
+    chain: FORWARD
+    source: 10.10.10.0/24
+    destination: 192.168.20.20
+    jump: DROP
+    action: insert
+
+- name: Drop all direct traffic from Corporate to PLC
+  iptables:
+    chain: FORWARD
+    source: 10.10.10.0/24
+    destination: 192.168.20.10
+    jump: DROP
     action: insert
