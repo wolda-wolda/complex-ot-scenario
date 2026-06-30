@@ -32,7 +32,11 @@
     path: /etc/ssh/sshd_config
     regexp: '^PasswordAuthentication'
     line: 'PasswordAuthentication yes'
-  notify: restart ssh
+
+- name: restart ssh
+  systemd:
+    name: ssh
+    state: restarted
 
 - name: Install pymodbus via pip for safety monitor script
   pip:
