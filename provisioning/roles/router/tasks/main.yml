@@ -1,0 +1,69 @@
+---
+- name: Drop direct connections from Attacker to Engineering Workstation
+  iptables:
+    chain: FORWARD
+    source: 10.10.10.50
+    destination: "{{ item }}"
+    jump: DROP
+    action: insert
+  loop:
+    - 192.168.100.20
+    - 192.168.200.20
+
+- name: Drop direct connections from Attacker to OpenPLC Node
+  iptables:
+    chain: FORWARD
+    source: 10.10.10.50
+    destination: 192.168.200.10
+    jump: DROP
+    action: insert
+
+- name: Drop direct Admin (8080) traffic from SCADA HMI to OpenPLC Node
+  iptables:
+    chain: FORWARD
+    source: 192.168.100.10
+    destination: 192.168.200.10
+    protocol: tcp
+    destination_port: "8080"
+    jump: DROP
+    action: insert
+
+- name: Drop SSH (22) traffic from SCADA HMI to OpenPLC Node
+  iptables:
+    chain: FORWARD
+    source: 192.168.100.10
+    destination: 192.168.200.10
+    protocol: tcp
+    destination_port: "22"
+    jump: DROP
+    action: insert
+
+- name: Allow Modbus TCP (502) traffic from SCADA HMI to OpenPLC Node
+  iptables:
+    chain: FORWARD
+    source: 192.168.100.10
+    destination: 192.168.200.10
+    protocol: tcp
+    destination_port: "502"
+    jump: ACCEPT
+    action: insert
+
+- name: Allow API (5000) traffic from SCADA HMI to Engineering Workstation
+  iptables:
+    chain: FORWARD
+    source: 192.168.100.10
+    destination: 192.168.100.20
+    protocol: tcp
+    destination_port: "5000"
+    jump: ACCEPT
+    action: insert
+
+- name: Allow Admin (8080) traffic from Engineering Workstation to OpenPLC Node
+  iptables:
+    chain: FORWARD
+    source: 192.168.200.20
+    destination: 192.168.200.10
+    protocol: tcp
+    destination_port: "8080"
+    jump: ACCEPT
+    action: insert
