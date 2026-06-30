@@ -37,7 +37,19 @@
           "hint_penalty": 20,
           "order": 1
         }
-      ]
+      ],
+      "incorrect_answer_limit": 10,
+      "attachments": [],
+      "variant_answers": false,
+      "reference_solution": [],
+      "mitre_techniques": [
+        { "id": "T1046", "name": "Network Service Discovery" }
+      ],
+      "expected_commands": [
+        "nmap.*192.168.100.*",
+        "nmap.*-p 1880.*"
+      ],
+      "commands_required": true
     },
     {
       "title": "EXPLOITATION: SCADA HMI Compromise (Florida Oldsmar Incident)",
@@ -61,7 +73,16 @@
           "hint_penalty": 20,
           "order": 1
         }
-      ]
+      ],
+      "incorrect_answer_limit": 10,
+      "attachments": [],
+      "variant_answers": false,
+      "reference_solution": [],
+      "mitre_techniques": [
+        { "id": "T1190", "name": "Exploit Public-Facing Application" }
+      ],
+      "expected_commands": [],
+      "commands_required": false
     },
     {
       "title": "CREDENTIAL ACCESS: Operator Secrets",
@@ -85,7 +106,16 @@
           "hint_penalty": 20,
           "order": 1
         }
-      ]
+      ],
+      "incorrect_answer_limit": 10,
+      "attachments": [],
+      "variant_answers": false,
+      "reference_solution": [],
+      "mitre_techniques": [
+        { "id": "T1552.001", "name": "Unsecured Credentials: Credentials In Files" }
+      ],
+      "expected_commands": [],
+      "commands_required": false
     },
     {
       "title": "PIVOT: Engineering Workstation Lateral Movement (Ukraine Power Grid)",
@@ -115,7 +145,22 @@
           "hint_penalty": 20,
           "order": 2
         }
-      ]
+      ],
+      "incorrect_answer_limit": 10,
+      "attachments": [],
+      "variant_answers": false,
+      "reference_solution": [],
+      "mitre_techniques": [
+        { "id": "T1021.004", "name": "Remote Services: SSH" },
+        { "id": "T1046", "name": "Network Service Discovery" }
+      ],
+      "expected_commands": [
+        "nc -nlvp.*",
+        "python3 -c.*pty\\.spawn.*",
+        "ssh operator@192\\.168\\.20\\.20",
+        "nmap.*192\\.168\\.20\\..*"
+      ],
+      "commands_required": true
     },
     {
       "title": "SABOTAGE: Modbus Protocol Injection (Industroyer / Stuxnet)",
@@ -145,7 +190,20 @@
           "hint_penalty": 30,
           "order": 2
         }
-      ]
+      ],
+      "incorrect_answer_limit": 10,
+      "attachments": [],
+      "variant_answers": false,
+      "reference_solution": [],
+      "mitre_techniques": [
+        { "id": "T0855", "name": "Unauthorized Command Message" },
+        { "id": "T0831", "name": "Manipulation of Control" }
+      ],
+      "expected_commands": [
+        "modbus.*192\\.168\\.20\\.10.*",
+        "cat.*/var/log/safety_override.*"
+      ],
+      "commands_required": true
     }
   ]
 }
