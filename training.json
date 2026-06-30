@@ -1,6 +1,8 @@
 {
   "title": "Industrial Control Hijack and Pivoting Sandbox",
   "description": "Simulates a multi-hop breach from a corporate entry point, compromising an unauthenticated Node-RED HMI, stealing engineering credentials, pivoting to the EWS, and executing Modbus commands to disable a PLC cooling loop.",
+  "state": "RELEASED",
+  "show_stepper_bar": true,
   "levels": [
     {
       "title": "Access the Attacker Workstation",
@@ -52,12 +54,12 @@
       "order": 4,
       "estimated_duration": 15,
       "answer": "FLAG{PUMP_DISABLED_SUCCESS}",
-      "content": "The PLC at `192.168.20.10` controls a vital cooling pump mapped to Modbus Holding Register 0 (Address 40001). Under normal conditions, this register has the value `1`.\n\nFrom your EWS SSH terminal, use the pre-installed `modbus` CLI utility to write `0` to this register to disable the pump. Once zeroed, the safety logging system will write a log entry to `/var/log/safety_override.txt` containing the flag.\n\nWhat is the sabotage flag?",
-      "solution": "From the EWS shell, run: `modbus write 192.168.20.10 40001 0`. Then run `cat /var/log/safety_override.txt` to read the flag.",
+      "content": "The PLC at `192.168.20.10` controls a vital cooling pump mapped to Modbus Holding Register 0. Under normal conditions, this register has the value `1`.\n\nFrom your EWS SSH terminal, use the pre-installed `modbus` CLI utility to write `0` to this register to disable the pump. Once zeroed, the safety logging system will write a log entry to `/var/log/safety_override.txt` containing the flag.\n\nWhat is the sabotage flag?",
+      "solution": "From the EWS shell, run: `modbus 192.168.20.10 0=0`. Then run `cat /var/log/safety_override.txt` to read the flag.",
       "hints": [
         {
           "title": "Modbus CLI Syntax",
-          "content": "The command is: `modbus write 192.168.20.10 40001 0`.",
+          "content": "The command is: `modbus 192.168.20.10 0=0`.",
           "hint_penalty": 0,
           "order": 0
         }
