@@ -50,16 +50,8 @@ net_mappings:
     ip: 10.10.10.50
 
   - host: scada-hmi
-    network: mgmt-net
-    ip: 10.10.10.10
-
-  - host: scada-hmi
     network: operations-net
     ip: 192.168.100.10
-
-  - host: engineering-station
-    network: operations-net
-    ip: 192.168.100.20
 
   - host: engineering-station
     network: control-net

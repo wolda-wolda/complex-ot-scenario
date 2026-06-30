@@ -35,7 +35,7 @@
       "estimated_duration": 5,
       "minimal_possible_solve_time": null,
       "answer": "FLAG{SCADA_HMI_COMPROMISED}",
-      "content": "Find and exploit the Node-RED flow builder on `10.10.10.10:1880` to read `/root/flag.txt`.\n\nWhat is the HMI flag?",
+      "content": "Find and exploit the Node-RED flow builder on `192.168.100.10:1880` to read `/root/flag.txt`.\n\nWhat is the HMI flag?",
       "solution": "Add an inject node wired to an exec node configured to execute 'cat /root/flag.txt' and output to debug to read the flag.",
       "hints": [
         {

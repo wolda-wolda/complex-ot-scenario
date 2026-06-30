@@ -3,12 +3,9 @@
   iptables:
     chain: FORWARD
     source: 10.10.10.50
-    destination: "{{ item }}"
+    destination: 192.168.200.20
     jump: DROP
     action: insert
-  loop:
-    - 192.168.100.20
-    - 192.168.200.20
 
 - name: Drop direct connections from Attacker to OpenPLC Node
   iptables:
@@ -52,7 +49,7 @@
   iptables:
     chain: FORWARD
     source: 192.168.100.10
-    destination: 192.168.100.20
+    destination: 192.168.200.20
     protocol: tcp
     destination_port: "5000"
     jump: ACCEPT
