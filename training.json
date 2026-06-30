@@ -71,8 +71,8 @@
       "estimated_duration": 15,
       "minimal_possible_solve_time": null,
       "answer": "FLAG{PLC_LOGIC_COMPROMISED}",
-      "content": "The EWS is allowed to manage the PLC on port `8080`. Connect to `192.168.200.10:8080` from EWS. Log in using default credentials, and find a way to execute system commands to write the flag to the web server directory. Then download `/root/flag3.txt` content.\n\nWhat is the PLC flag?",
-      "solution": "Authenticate to the OpenPLC admin panel, navigate to Hardware options, modify the Custom PSM Python Module code to write the flag to `/opt/OpenPLC_v3/webserver/st_files/flag.txt`, save, and compile it. Retrieve the flag from `http://192.168.200.10:8080/st_files/flag.txt`.",
+      "content": "The EWS is allowed to manage the PLC on port `8080`. Connect to `192.168.20.10:8080` from EWS. Log in using default credentials, and find a way to execute system commands to write the flag to the web server directory. Then download `/root/flag3.txt` content.\n\nWhat is the PLC flag?",
+      "solution": "Authenticate to the OpenPLC admin panel, navigate to Hardware options, modify the Custom PSM Python Module code to write the flag to `/opt/OpenPLC_v3/webserver/st_files/flag.txt`, save, and compile it. Retrieve the flag from `http://192.168.20.10:8080/st_files/flag.txt`.",
       "hints": [
         {
           "title": "OpenPLC Credentials",

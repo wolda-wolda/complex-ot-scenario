@@ -3,7 +3,7 @@
   iptables:
     chain: FORWARD
     source: 10.10.10.50
-    destination: 192.168.200.20
+    destination: 192.168.20.20
     jump: DROP
     action: insert
 
@@ -11,7 +11,7 @@
   iptables:
     chain: FORWARD
     source: 10.10.10.50
-    destination: 192.168.200.10
+    destination: 192.168.20.10
     jump: DROP
     action: insert
 
@@ -19,7 +19,7 @@
   iptables:
     chain: FORWARD
     source: 192.168.100.10
-    destination: 192.168.200.10
+    destination: 192.168.20.10
     protocol: tcp
     destination_port: "8080"
     jump: DROP
@@ -29,7 +29,7 @@
   iptables:
     chain: FORWARD
     source: 192.168.100.10
-    destination: 192.168.200.10
+    destination: 192.168.20.10
     protocol: tcp
     destination_port: "22"
     jump: DROP
@@ -39,7 +39,7 @@
   iptables:
     chain: FORWARD
     source: 192.168.100.10
-    destination: 192.168.200.10
+    destination: 192.168.20.10
     protocol: tcp
     destination_port: "502"
     jump: ACCEPT
@@ -49,7 +49,7 @@
   iptables:
     chain: FORWARD
     source: 192.168.100.10
-    destination: 192.168.200.20
+    destination: 192.168.20.20
     protocol: tcp
     destination_port: "5000"
     jump: ACCEPT
@@ -58,8 +58,8 @@
 - name: Allow Admin (8080) traffic from Engineering Workstation to OpenPLC Node
   iptables:
     chain: FORWARD
-    source: 192.168.200.20
-    destination: 192.168.200.10
+    source: 192.168.20.20
+    destination: 192.168.20.10
     protocol: tcp
     destination_port: "8080"
     jump: ACCEPT
