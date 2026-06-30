@@ -42,7 +42,7 @@ networks:
   - name: operations-net
     cidr: 192.168.100.0/24
   - name: control-net
-    cidr: 192.168.200.0/24
+    cidr: 192.168.20.0/24
 
 net_mappings:
   - host: attacker-host
@@ -55,11 +55,11 @@ net_mappings:
 
   - host: engineering-station
     network: control-net
-    ip: 192.168.200.20
+    ip: 192.168.20.20
 
   - host: openplc-node
     network: control-net
-    ip: 192.168.200.10
+    ip: 192.168.20.10
 
 router_mappings:
   - router: ot-router
@@ -72,6 +72,6 @@ router_mappings:
 
   - router: ot-router
     network: control-net
-    ip: 192.168.200.1
+    ip: 192.168.20.1
 
 groups: []
