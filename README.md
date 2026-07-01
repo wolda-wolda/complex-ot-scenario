@@ -45,7 +45,7 @@ graph TD
 ### Sandbox Host Specifications
 
 | Hostname | Purdue Level | Role | Operating System | OpenStack Flavor | Management Network IP | Operational Interface / Subnet |
-|---|---|---|---|---|---|---|
+| --- | --- | --- | --- | --- | --- | --- |
 | **`attacker-host`** | Level 4/5 | Adversary Workstation | Kali Linux | `kali` | `192.168.128.141` | `10.10.10.50` (`corporate-net`) |
 | **`dmz-jump`** | Level 3.5 | SSH Jump Host | Debian 12 | `standard.small` | `192.168.128.251` | `192.168.50.50` (`dmz-net`) |
 | **`scada-hmi`** | Level 3 | Supervisory HMI | Debian 12 | `standard.small` | `192.168.129.238` | `192.168.100.10` (`operations-net`) |
@@ -81,12 +81,14 @@ The training scenario consists of 8 chronological milestones:
 
 ## 4. How to Deploy to KyPo Portal
 
-1. Push all modifications to your remote Git repository:
+9. Push all modifications to your remote Git repository:
+
    ```bash
    git add .
    git commit -m "feat: implement DMZ jump host and updated training"
    git push origin main
    ```
-2. In the KyPo Portal interface, navigate to **Sandbox Definitions**.
-3. Re-import or refresh the definition from your repository. If the portal exhibits Git caching, specify the latest commit hash (e.g., `03e91bd3d970...`) inside the **Revision** field to bypass the cache and force a new fetch.
-4. Go to **Pools**, delete the existing outdated pool instance, and allocate a new one.
+
+10. In the KyPo Portal interface, navigate to **Sandbox Definitions**.
+11. Re-import or refresh the definition from your repository. If the portal exhibits Git caching, specify the latest commit hash (e.g., `03e91bd3d970...`) inside the **Revision** field to bypass the cache and force a new fetch.
+12. Go to **Pools**, delete the existing outdated pool instance, and allocate a new one.
