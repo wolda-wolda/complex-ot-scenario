@@ -1,9 +1,33 @@
 {
-  "title": "Operation Waterborne: Industrial Control Hijack and Pivoting2",
+  "title": "Operation Waterborne: Industrial Control Hijack and Pivoting",
   "description": "An immersive security exercise mimicking state-sponsored threat actors. You are tasked with assessing the security posture of the 'Resolute' Municipal Water Plant by simulating a multi-hop breach: scanning the operations subnet, compromising an exposed HMI, extracting operator credentials, pivoting laterally to the Engineering Workstation, and sabotaging a critical pump via raw Modbus TCP command injection.",
+  "prerequisites": [
+    "Familiarity with basic Linux command-line operations (ls, cat, cd, ssh)",
+    "Fundamental knowledge of TCP/IP networking, subnets, and ports",
+    "Basic experience running network scanning tools (like nmap)",
+    "Concept of remote reverse shell execution and netcat listeners",
+    "Familiarity with the Purdue Model structure for industrial networks"
+  ],
+  "outcomes": [
+    "Industrial network scanning and reconnaissance using nmap",
+    "Exploiting unauthenticated graphical control portals (Node-RED)",
+    "Harvesting credentials and upgrading standard shells to interactive pseudo-terminals (PTY)",
+    "Pivoting laterally between secure network zones (Purdue Model Levels 3, 2, and 1)",
+    "Conducting protocol injection attacks using raw Modbus TCP to manipulate PLC register states"
+  ],
   "state": "RELEASED",
   "show_stepper_bar": true,
+  "estimated_duration": 62,
+  "variant_sandboxes": false,
   "levels": [
+    {
+      "title": "Overview",
+      "level_type": "INFO_LEVEL",
+      "order": 0,
+      "estimated_duration": 0,
+      "minimal_possible_solve_time": null,
+      "content": "# Operation Waterborne: Industrial Control Hijack and Pivoting\n\nWelcome to the training scenario. This sandbox simulates a multi-hop intrusion chain against a municipal water plant, structured in accordance with the Purdue Enterprise Reference Architecture (PERA), which is adopted by the ISA/IEC 62443 standard for network zone segmentation.\n\n### Purdue Model Alignment in the Sandbox\n\n| Level | Sandbox Host | Role | Network Zone | Purdue Model Level |\n|:---:|---|---|---|---|\n| **Foothold** | `attacker-host` | Attacker Workstation | Corporate Network | Level 4/5 (Enterprise) |\n| **Operations** | `scada-hmi` | SCADA Flow Editor (Node-RED) | Operations Subnet | Level 3 (Operations) |\n| **Engineering** | `engineering-station` | Engineering Workstation (EWS) | Control Network | Level 2 (Area Control) |\n| **Process Control** | `openplc-node` | Software PLC (OpenPLC) | Control Network | Level 1 (Direct Control) |\n\n### Training Path Outline\n\n1.  **Overview / Info:** You are here.\n2.  **Foothold (Access):** Log in to the Kali console (`attacker-host`).\n3.  **Reconnaissance (Training):** Scan the operations network to discover the SCADA HMI web port.\n4.  **Exploitation (Training):** Compromise the HMI via unauthenticated Node-RED graphical flow interfaces (RCE).\n5.  **Credential Access (Training):** Extract operator passwords from local file backups.\n6.  **Pivot (Training):** Spawning a shell, upgrading to interactive PTY, and SSH pivoting into the Engineering Workstation.\n7.  **Sabotage (Training):** Sending cleartext Modbus TCP instructions to disable a cooling pump process register.\n8.  **Knowledge Assessment (Test):** Verification questions covering ports, protocols, and taxonomies.\n9.  **Feedback (Questionnaire):** Evaluation and feedback survey.\n"
+    },
     {
       "title": "FOOTHOLD: Access the Attacker Console",
       "level_type": "ACCESS_LEVEL",
@@ -11,7 +35,7 @@
       "estimated_duration": 2,
       "minimal_possible_solve_time": null,
       "passkey": "start",
-      "cloud_content": "### Scenario Overview\n\nYou are a senior red-team operator hired to conduct an authorized adversarial assessment against the Resolute Water Treatment Facility. The plant uses segregated networks based on the ISA-99/IEC 62443 Purdue Model, but you have gained an initial foothold inside the corporate management network.\n\n### Your Objective\n\nAccess the **`attacker-host`** (your Kali Linux terminal), open the console, and input the passkey **`start`** to initialize the operation.",
+      "cloud_content": "### Scenario Overview\n\nYou are a senior red-team operator hired to conduct an authorized adversarial assessment against the Resolute Water Treatment Facility. The plant uses segregated networks based on the Purdue Model (adapted under the ISA/IEC 62443 zoning standard), but you have gained an initial foothold inside the corporate management network.\n\n### Your Objective\n\nAccess the **`attacker-host`** (your Kali Linux terminal), open the console, and input the passkey **`start`** to initialize the operation.",
       "local_content": "Input the passkey **`start`** to unlock the first stage of Operation Waterborne."
     },
     {
@@ -116,7 +140,7 @@
       "reference_solution": [],
       "mitre_techniques": [
         {
-          "technique_key": "TA0003.T1552.001"
+          "technique_key": "TA0006.T1552.001"
         }
       ],
       "expected_commands": [],
@@ -157,7 +181,7 @@
       "reference_solution": [],
       "mitre_techniques": [
         {
-          "technique_key": "TA0001.T1021.004"
+          "technique_key": "TA0008.T1021.004"
         },
         {
           "technique_key": "TA0007.T1046"
@@ -206,10 +230,10 @@
       "reference_solution": [],
       "mitre_techniques": [
         {
-          "technique_key": "TA0008.T0855"
+          "technique_key": "TA0105.T0855"
         },
         {
-          "technique_key": "TA0008.T0831"
+          "technique_key": "TA0105.T0831"
         }
       ],
       "expected_commands": [
@@ -217,6 +241,200 @@
         "cat.*/var/log/safety_override.*"
       ],
       "commands_required": true
+    },
+    {
+      "title": "Knowledge Assessment",
+      "level_type": "ASSESSMENT_LEVEL",
+      "order": 7,
+      "estimated_duration": 5,
+      "minimal_possible_solve_time": null,
+      "questions": [
+        {
+          "question_type": "MCQ",
+          "text": "What is the default port number used by the cleartext Modbus TCP protocol?",
+          "points": 100,
+          "penalty": 20,
+          "order": 0,
+          "answer_required": true,
+          "choices": [
+            {
+              "text": "22",
+              "correct": false,
+              "order": 0
+            },
+            {
+              "text": "80",
+              "correct": false,
+              "order": 1
+            },
+            {
+              "text": "502",
+              "correct": true,
+              "order": 2
+            },
+            {
+              "text": "1880",
+              "correct": false,
+              "order": 3
+            }
+          ]
+        },
+        {
+          "question_type": "EMI",
+          "text": "Match each sandbox host with its corresponding level in the Purdue Enterprise Reference Architecture (PERA) model.",
+          "points": 100,
+          "penalty": 20,
+          "order": 1,
+          "answer_required": true,
+          "extended_matching_options": [
+            {
+              "text": "Purdue Level 1 (Direct Process Control)",
+              "order": 0
+            },
+            {
+              "text": "Purdue Level 2 (Area/Cell Control)",
+              "order": 1
+            },
+            {
+              "text": "Purdue Level 3 (Operations Management & SCADA)",
+              "order": 2
+            }
+          ],
+          "extended_matching_statements": [
+            {
+              "text": "openplc-node (OpenPLC Modbus server)",
+              "order": 0,
+              "correct_option_order": 0
+            },
+            {
+              "text": "engineering-station (EWS configuration station)",
+              "order": 1,
+              "correct_option_order": 1
+            },
+            {
+              "text": "scada-hmi (Node-RED web interface)",
+              "order": 2,
+              "correct_option_order": 2
+            }
+          ]
+        },
+        {
+          "question_type": "MCQ",
+          "text": "Which Modbus function code is used to perform a single register write to override the pump state?",
+          "points": 100,
+          "penalty": 20,
+          "order": 2,
+          "answer_required": true,
+          "choices": [
+            {
+              "text": "0x01 (Read Coils)",
+              "correct": false,
+              "order": 0
+            },
+            {
+              "text": "0x03 (Read Holding Registers)",
+              "correct": false,
+              "order": 1
+            },
+            {
+              "text": "0x05 (Write Single Coil)",
+              "correct": false,
+              "order": 2
+            },
+            {
+              "text": "0x06 (Write Single Register)",
+              "correct": true,
+              "order": 3
+            }
+          ]
+        }
+      ],
+      "instructions": "Test your understanding of the OT network taxonomy, protocols, and architectural models used during this exercise.",
+      "assessment_type": "TEST"
+    },
+    {
+      "title": "Feedback & Evaluation",
+      "level_type": "ASSESSMENT_LEVEL",
+      "order": 8,
+      "estimated_duration": 5,
+      "minimal_possible_solve_time": null,
+      "questions": [
+        {
+          "question_type": "MCQ",
+          "text": "How engaging was the multi-stage pivot and Modbus hijacking scenario?",
+          "points": 0,
+          "penalty": 0,
+          "order": 0,
+          "answer_required": true,
+          "choices": [
+            {
+              "text": "Highly engaging",
+              "correct": false,
+              "order": 0
+            },
+            {
+              "text": "Moderately engaging",
+              "correct": false,
+              "order": 1
+            },
+            {
+              "text": "Not engaging",
+              "correct": false,
+              "order": 2
+            }
+          ]
+        },
+        {
+          "question_type": "EMI",
+          "text": "Rate your agreement with the following statements regarding sandbox performance and realism:",
+          "points": 0,
+          "penalty": 0,
+          "order": 1,
+          "answer_required": true,
+          "extended_matching_options": [
+            {
+              "text": "Strongly Agree",
+              "order": 0
+            },
+            {
+              "text": "Agree",
+              "order": 1
+            },
+            {
+              "text": "Disagree",
+              "order": 2
+            },
+            {
+              "text": "Strongly Disagree",
+              "order": 3
+            }
+          ],
+          "extended_matching_statements": [
+            {
+              "text": "The interactive reverse shell and PTY upgrade steps felt realistic.",
+              "order": 0
+            },
+            {
+              "text": "The OpenStack/Kubernetes response speed was adequate.",
+              "order": 1
+            },
+            {
+              "text": "The Modbus CLI tool is easy to use.",
+              "order": 2
+            }
+          ]
+        },
+        {
+          "question_type": "FFQ",
+          "text": "What improvements or physical devices would you like to see integrated in future versions of this training sandbox?",
+          "points": 0,
+          "penalty": 0,
+          "order": 2,
+          "answer_required": false
+        }
+      ],
+      "instructions": "Please share your feedback to help us refine the training experience and mechanical design.",
+      "assessment_type": "QUESTIONNAIRE"
     }
   ]
 }
