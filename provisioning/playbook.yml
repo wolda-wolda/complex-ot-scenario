@@ -27,3 +27,26 @@
   become: yes
   roles:
     - openplc
+
+- name: Configure the Attacker Workstation
+  hosts: attacker-host
+  become: yes
+  tasks:
+    - name: Deploy password dictionary for brute-forcing
+      copy:
+        dest: /home/debian/passlist.txt
+        content: |
+          password
+          123456
+          admin
+          password123
+          operator
+          operator123
+          letmein
+          oracle
+          engineer
+          engineer123
+          bacon
+        owner: debian
+        group: debian
+        mode: '0644'

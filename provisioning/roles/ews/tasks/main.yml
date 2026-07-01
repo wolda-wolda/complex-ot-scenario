@@ -13,18 +13,18 @@
     executable: pip3
     extra_args: --break-system-packages
 
-- name: Create operator user group
+- name: Create engineer user group
   group:
-    name: operator
+    name: engineer
     state: present
 
-- name: Create operator user with weak credentials
+- name: Create engineer user with unique credentials
   user:
-    name: operator
-    group: operator
-    password: "$6$IQBxuzI0FCQdu5gU$NIohLB40Hwc7Uclsu9bIIMtOTRIPTLC1Bw39cwboypppwcpb1rNwXrS8up/SWB5056dSEuLZSZEW0CxMR5Pej0"
+    name: engineer
+    group: engineer
+    password: "$6$VGWXvtcxZEhUaOjl$LhcDPDbW4ywoyctgSUUS5qBHOhsxNqm6dlL/hFyzCb9wGjBe.f5gNYc4cY7NjSUk1Wzmf.X7cIHT19TQ.h4Va1"
     shell: /bin/bash
-    home: /home/operator
+    home: /home/engineer
     create_home: yes
 
 - name: Ensure SSH is enabled and allows password authentication
