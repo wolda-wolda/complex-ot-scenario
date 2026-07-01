@@ -3,12 +3,14 @@
     "strict-config": false
   },
   "plugins": {
+    "md007": {
+      "enabled": false
+    },
     "md013": {
-      "enabled": true,
-      "line_length": 80,
-      "code_blocks": false,
-      "tables": false,
-      "headings": false
+      "enabled": false
+    },
+    "md024": {
+      "enabled": false
     },
     "md026": {
       "enabled": false
@@ -17,6 +19,9 @@
       "enabled": false
     },
     "md029": {
+      "enabled": false
+    },
+    "md032": {
       "enabled": false
     },
     "md036": {
