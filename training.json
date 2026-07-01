@@ -17,7 +17,7 @@
   ],
   "state": "RELEASED",
   "show_stepper_bar": true,
-  "estimated_duration": 62,
+  "estimated_duration": 72,
   "variant_sandboxes": false,
   "levels": [
     {
@@ -26,7 +26,7 @@
       "order": 0,
       "estimated_duration": 0,
       "minimal_possible_solve_time": null,
-      "content": "# Operation Waterborne: Industrial Control Hijack and Pivoting\n\nWelcome to the training scenario. This sandbox simulates a multi-hop intrusion chain against a municipal water plant, structured in accordance with the Purdue Enterprise Reference Architecture (PERA), which is adopted by the ISA/IEC 62443 standard for network zone segmentation.\n\n### Purdue Model Alignment in the Sandbox\n\n| Level | Sandbox Host | Role | Network Zone | Purdue Model Level |\n|:---:|---|---|---|---|\n| **Foothold** | `attacker-host` | Attacker Workstation | Corporate Network | Level 4/5 (Enterprise) |\n| **Operations** | `scada-hmi` | SCADA Flow Editor (Node-RED) | Operations Subnet | Level 3 (Operations) |\n| **Engineering** | `engineering-station` | Engineering Workstation (EWS) | Control Network | Level 2 (Area Control) |\n| **Process Control** | `openplc-node` | Software PLC (OpenPLC) | Control Network | Level 1 (Direct Control) |\n\n### Training Path Outline\n\n1.  **Overview / Info:** You are here.\n2.  **Foothold (Access):** Log in to the Kali console (`attacker-host`).\n3.  **Reconnaissance (Training):** Scan the operations network to discover the SCADA HMI web port.\n4.  **Exploitation (Training):** Compromise the HMI via unauthenticated Node-RED graphical flow interfaces (RCE).\n5.  **Credential Access (Training):** Extract operator passwords from local file backups.\n6.  **Pivot (Training):** Spawning a shell, upgrading to interactive PTY, and SSH pivoting into the Engineering Workstation.\n7.  **Sabotage (Training):** Sending cleartext Modbus TCP instructions to disable a cooling pump process register.\n8.  **Knowledge Assessment (Test):** Verification questions covering ports, protocols, and taxonomies.\n9.  **Feedback (Questionnaire):** Evaluation and feedback survey.\n"
+      "content": "# Operation Waterborne: Industrial Control Hijack and Pivoting\n\nWelcome to the training scenario. This sandbox simulates a multi-hop intrusion chain against a municipal water plant, structured in accordance with the Purdue Enterprise Reference Architecture (PERA), which is adopted by the ISA/IEC 62443 standard for network zone segmentation.\n\n### Purdue Model & IDMZ Alignment in the Sandbox\n\n| Level | Sandbox Host | Role | Network Zone | Purdue Model Level |\n|:---:|---|---|---|---|\n| **Foothold** | `attacker-host` | Attacker Workstation | Corporate Network | Level 4/5 (Enterprise) |\n| **IDMZ** | `dmz-jump` | Industrial Jump Host | Industrial DMZ (IDMZ) | Level 3.5 (DMZ) |\n| **Operations** | `scada-hmi` | SCADA Flow Editor (Node-RED) | Operations Subnet | Level 3 (Operations) |\n| **Engineering** | `engineering-station` | Engineering Workstation (EWS) | Control Network | Level 2 (Area Control) |\n| **Process Control** | `openplc-node` | Software PLC (OpenPLC) | Control Network | Level 1 (Direct Control) |\n\n### Training Path Outline\n\n1.  **Overview / Info:** You are here.\n2.  **Foothold (Access):** Log in to the Kali console (`attacker-host`).\n3.  **IDMZ Access (Training):** Discover and log in to the Level 3.5 Jump Host (`dmz-jump`).\n4.  **Reconnaissance (Training):** Scan the operations network *from the DMZ* to discover the SCADA HMI web port.\n5.  **Exploitation (Training):** Forward ports via SSH and compromise HMI via unauthenticated Node-RED (RCE).\n6.  **Credential Access (Training):** Extract operator passwords from local file backups.\n7.  **Pivot (Training):** Spawning a shell, upgrading to interactive TTY, and SSH pivoting into the Engineering Workstation.\n8.  **Sabotage (Training):** Sending cleartext Modbus TCP instructions to disable a cooling pump process register.\n9.  **Knowledge Assessment (Test):** Verification questions covering ports, protocols, and taxonomies.\n10. **Feedback (Questionnaire):** Evaluation and feedback survey.\n"
     },
     {
       "title": "FOOTHOLD: Access the Attacker Console",
@@ -39,24 +39,64 @@
       "local_content": "Input the passkey **`start`** to unlock the first stage of Operation Waterborne."
     },
     {
-      "title": "RECONNAISSANCE: SCADA HMI Discovery",
+      "title": "IDMZ: Access the Industrial DMZ Jump Host",
       "level_type": "TRAINING_LEVEL",
       "order": 2,
-      "estimated_duration": 5,
-      "answer": "192.168.100.10:1880",
-      "content": "### The Situation\n\nYou have logged into your Kali Linux attacker workstation. Your corporate connection provides routing to the operations management network subnet: `192.168.100.0/24`. Before launching any exploits, you must locate the active SCADA Human-Machine Interface (HMI) web portal.\n\n### Your Objective\n\n1. Scan the operations network using `nmap` to find any live hosts running web applications or flow editors.\n2. Identify the IP address and port running the SCADA HMI (hint: look for Node-RED's default port).\n\nWhat is the IP address and port of the SCADA flow editor? (Format: `IP:PORT`, e.g. `192.168.1.100:80`)",
-      "solution": "1. Run a port scan: `nmap -p 1880 --open 192.168.100.0/24`\n2. Note the active host on port 1880: `192.168.100.10:1880`",
+      "estimated_duration": 10,
+      "minimal_possible_solve_time": 1,
+      "answer": "FLAG{IDMZ_JUMP_ACCESSED}",
+      "content": "### The Situation\n\nYour initial reconnaissance indicates that direct routing from your corporate Kali host to the SCADA operations network (`192.168.100.0/24`) is blocked by the perimeter gateway firewall. This enforces standard IEC 62443 zone architectures, which forbid direct corporate-to-operations paths.\n\nHowever, a Level 3.5 Industrial DMZ (IDMZ) is configured with an exposed jump host in the `192.168.50.0/24` subnet for remote engineering access.\n\n### Your Objective\n\n1. Scan the IDMZ subnet (`192.168.50.0/24`) using `nmap` from your Kali host to locate the active jump host.\n2. Connect via SSH to the jump host (`192.168.50.50`) using the credentials: Username: `operator` / Password: `operator123`.\n3. Read the flag file located at `/home/operator/flag.txt` to complete this level.\n",
+      "solution": "1. Run a port scan from the Kali console: `nmap -p 22 --open 192.168.50.0/24`\n2. Note the active jump host at `192.168.50.50` running SSH.\n3. Log in to the jump host: `ssh operator@192.168.50.50` (using password `operator123`).\n4. Print the flag: `cat flag.txt` to retrieve `FLAG{IDMZ_JUMP_ACCESSED}`.",
       "max_score": 50,
       "hints": [
         {
-          "title": "Network Scanning CLI",
-          "content": "Use `nmap` to perform service discovery on the operations subnet (`192.168.100.0/24`). Standard fast scans look like `nmap -sn 192.168.100.0/24`.",
+          "title": "DMZ Host Discovery",
+          "content": "Use `nmap -p 22 --open 192.168.50.0/24` to locate the SSH endpoint in the DMZ subnet.",
+          "hint_penalty": 10,
+          "order": 0
+        },
+        {
+          "title": "SSH Login Credentials",
+          "content": "Log in via SSH to `192.168.50.50` using the username `operator` and password `operator123`.",
+          "hint_penalty": 20,
+          "order": 1
+        }
+      ],
+      "incorrect_answer_limit": 10,
+      "attachments": [],
+      "variant_answers": false,
+      "reference_solution": [],
+      "mitre_techniques": [
+        {
+          "technique_key": "TA0008.T1021.004"
+        }
+      ],
+      "expected_commands": [
+        "nmap.*192.168.50.*",
+        "ssh operator@192.168.50.50",
+        "cat flag.txt"
+      ],
+      "commands_required": true
+    },
+    {
+      "title": "RECONNAISSANCE: SCADA HMI Discovery",
+      "level_type": "TRAINING_LEVEL",
+      "order": 3,
+      "estimated_duration": 5,
+      "answer": "192.168.100.10:1880",
+      "content": "### The Situation\n\nYou have logged into the `dmz-jump` host. Your current session provides routing to the operations management network subnet: `192.168.100.0/24`, which is otherwise blocked from corporate IT hosts. Before launching any exploits, you must locate the active SCADA HMI web portal.\n\n### Your Objective\n\n1. From the `dmz-jump` shell, scan the operations subnet (`192.168.100.0/24`) using `nmap` to locate the active HMI host.\n2. Identify the IP address and port running the SCADA flow editor (hint: look for Node-RED's default port).\n\nWhat is the IP address and port of the SCADA flow editor? (Format: `IP:PORT`, e.g. `192.168.1.100:80`)",
+      "solution": "1. Run a port scan from the dmz-jump host: `nmap -p 1880 --open 192.168.100.0/24`\n2. Note the active host on port 1880: `192.168.100.10:1880` and submit it as the answer.",
+      "max_score": 50,
+      "hints": [
+        {
+          "title": "Scanning from the Jump Host",
+          "content": "Run `nmap -p 1880 --open 192.168.100.0/24` directly on the `dmz-jump` terminal.",
           "hint_penalty": 10,
           "order": 0
         },
         {
           "title": "SCADA Web Port Target",
-          "content": "Industrial flow portals like Node-RED run on the default port `1880`. Run: `nmap -p 1880 --open 192.168.100.0/24` to instantly isolate the target IP.",
+          "content": "Industrial flow portals like Node-RED run on the default port `1880`.",
           "hint_penalty": 20,
           "order": 1
         }
@@ -79,22 +119,22 @@
     {
       "title": "EXPLOITATION: SCADA HMI Compromise (Florida Oldsmar Incident)",
       "level_type": "TRAINING_LEVEL",
-      "order": 3,
+      "order": 4,
       "estimated_duration": 10,
       "answer": "FLAG{SCADA_HMI_COMPROMISED}",
-      "content": "### The Situation\n\nDirect network routing to the PLC control network (`192.168.20.0/24`) is blocked by the gateway firewall (`ot-gateway`). However, the SCADA HMI web flow editor is accessible.\n\nThis mirrors the **2021 Oldsmar, Florida water plant breach**, where attackers hijacked an exposed control panel to alter water chemical levels.\n\n### Your Objective\n\n1. Connect to the unauthenticated Node-RED graphical flow editor on the HMI at `http://192.168.100.10:1880`.\n2. Leverage the graphical workspace to run system-level commands as `root` (RCE). Read the flag located at `/root/flag.txt`.",
-      "solution": "1. Connect to Node-RED HMI editor: http://192.168.100.10:1880/\n2. Drag inject, exec, and debug nodes onto the canvas and wire them: inject -> exec -> debug.\n3. Configure the exec node command field with: cat /root/flag.txt\n4. Click Deploy and click the inject node's trigger button. Read the flag in the Debug panel.",
+      "content": "### The Situation\n\nDirect network routing to the SCADA HMI (`192.168.100.10:1880`) is blocked from the corporate network, but permitted from the DMZ jump host. To access the graphical Node-RED editor inside your Kali browser, you must set up an SSH local port forward tunnel through the jump host.\n\n### Your Objective\n\n1. From a new terminal tab on your Kali workstation, establish an SSH local port forward: \n   ```bash\n   ssh -L 1880:192.168.100.10:1880 operator@192.168.50.50\n   ```\n2. Open your Kali web browser and navigate to `http://localhost:1880/`.\n3. Leverage the graphical workspace to run system-level commands as `root` (RCE) on the HMI. Read the flag located at `/root/flag.txt`.",
+      "solution": "1. Establish local port forward: `ssh -L 1880:192.168.100.10:1880 operator@192.168.50.50`\n2. Open http://localhost:1880/ in browser.\n3. Drag Inject -> Exec -> Debug nodes onto the canvas and wire them.\n4. Set Exec node command: `cat /root/flag.txt`\n5. Deploy and inject. Read the flag `FLAG{SCADA_HMI_COMPROMISED}` in the debug tab.",
       "max_score": 50,
       "hints": [
         {
-          "title": "Node-RED Shell Execution Concept",
-          "content": "Look at the left-hand node palette under the 'advanced' category for the 'exec' node, which executes system shell commands. You can trigger it using an 'inject' node, and view its stdout using a 'debug' node wired to the top output port of the exec node.",
+          "title": "SSH Port Forwarding",
+          "content": "Run `ssh -L 1880:192.168.100.10:1880 operator@192.168.50.50` on your Kali machine to map the remote HMI port to your local localhost:1880.",
           "hint_penalty": 10,
           "order": 0
         },
         {
-          "title": "Exact Foothold Commands",
-          "content": "Set the exec command to `cat /root/flag.txt` and trigger it.",
+          "title": "Node-RED Command execution",
+          "content": "Double click the Exec node in Node-RED and input the command: `cat /root/flag.txt`.",
           "hint_penalty": 20,
           "order": 1
         }
@@ -114,7 +154,7 @@
     {
       "title": "CREDENTIAL ACCESS: Operator Secrets",
       "level_type": "TRAINING_LEVEL",
-      "order": 4,
+      "order": 5,
       "estimated_duration": 5,
       "answer": "operator123",
       "content": "### The Situation\n\nYou have compromised the SCADA HMI web portal, but direct access to the PLC control network remains blocked. To pivot further, you need credentials for the Engineering Workstation (EWS).\n\n### Your Objective\n\n1. Explore the file system of the compromised SCADA HMI.\n2. Look inside operator home directories for configuration parameters or leaked credentials.\n3. Find the operator password stored in the credentials file.\n\nWhat is the password of the operator user?",
@@ -149,7 +189,7 @@
     {
       "title": "PIVOT: Engineering Workstation Lateral Movement (Ukraine Power Grid)",
       "level_type": "TRAINING_LEVEL",
-      "order": 5,
+      "order": 6,
       "estimated_duration": 15,
       "answer": "192.168.20.10",
       "content": "### The Situation\n\nYou now hold credentials for the Engineering Workstation (EWS), which has administrative access to the PLC network. This step mimics the **2015 Ukraine Power Grid cyberattack**, where attackers pivoted from the compromised corporate subnets to the high-privilege EWS nodes to control remote substations.\n\nDirect access to the control subnet (`192.168.20.0/24`) is blocked from Kali, but is permitted from the SCADA HMI.\n\n### Your Objective\n\n1. Establish an interactive terminal connection to the EWS at `192.168.20.20` using the stolen credentials.\n2. Scan the internal control subnet (`192.168.20.0/24`) to identify the IP address of the active PLC.\n\nWhat is the IP address of the PLC?",
@@ -198,7 +238,7 @@
     {
       "title": "SABOTAGE: Modbus Protocol Injection (Industroyer / Stuxnet)",
       "level_type": "TRAINING_LEVEL",
-      "order": 6,
+      "order": 7,
       "estimated_duration": 15,
       "answer": "FLAG{PUMP_DISABLED_SUCCESS}",
       "content": "### The Situation\n\nYou have gained access to the Engineering Workstation (`192.168.20.20`) and identified the target PLC at `192.168.20.10`. The controller manages a cooling loop pump mapped to Modbus Holding Register 0 (PLC Address 40001). Currently, the register is set to `1` (normal operational loop).\n\nLike **Stuxnet (2010)** or **Industroyer (2016)**, you will inject raw industrial protocol commands to directly manipulate physical process registers.\n\n### Your Objective\n\n1. From the EWS terminal, write the sabotage value `0` to Holding Register 0 to force the cooling pump to turn off.\n2. The safety monitoring sidecar running on the EWS will detect the unauthorized register overwrite and record the validation flag in the safety log.\n3. Retrieve the flag from the EWS log directory to complete the assessment.",
@@ -245,7 +285,7 @@
     {
       "title": "Knowledge Assessment",
       "level_type": "ASSESSMENT_LEVEL",
-      "order": 7,
+      "order": 8,
       "estimated_duration": 5,
       "minimal_possible_solve_time": null,
       "questions": [
@@ -298,6 +338,10 @@
             {
               "text": "Purdue Level 3 (Operations Management & SCADA)",
               "order": 2
+            },
+            {
+              "text": "Industrial DMZ - Level 3.5 (Zoning Boundary)",
+              "order": 3
             }
           ],
           "extended_matching_statements": [
@@ -315,6 +359,11 @@
               "text": "scada-hmi (Node-RED web interface)",
               "order": 2,
               "correct_option_order": 2
+            },
+            {
+              "text": "dmz-jump (Debian SSH jump host)",
+              "order": 3,
+              "correct_option_order": 3
             }
           ]
         },
@@ -355,7 +404,7 @@
     {
       "title": "Feedback & Evaluation",
       "level_type": "ASSESSMENT_LEVEL",
-      "order": 8,
+      "order": 9,
       "estimated_duration": 5,
       "minimal_possible_solve_time": null,
       "questions": [

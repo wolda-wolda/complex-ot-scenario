@@ -10,6 +10,12 @@
   roles:
     - nodered
 
+- name: Configure the IDMZ Jump Host
+  hosts: dmz-jump
+  become: yes
+  roles:
+    - dmz
+
 - name: Configure the Engineering Workstation
   hosts: engineering-station
   become: yes
