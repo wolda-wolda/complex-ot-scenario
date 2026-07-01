@@ -32,7 +32,7 @@
   hosts: attacker-host
   become: yes
   tasks:
-    - name: Deploy password dictionary for brute-forcing
+    - name: Deploy password dictionary to debian home
       copy:
         dest: /home/debian/passlist.txt
         content: |
@@ -50,3 +50,45 @@
         owner: debian
         group: debian
         mode: '0644'
+
+    - name: Deploy password dictionary to root home
+      copy:
+        dest: /root/passlist.txt
+        content: |
+          password
+          123456
+          admin
+          password123
+          operator
+          operator123
+          letmein
+          oracle
+          engineer
+          engineer123
+          bacon
+        owner: root
+        group: root
+        mode: '0644'
+
+    - name: Check if /home/kali exists
+      stat:
+        path: /home/kali
+      register: kali_home
+
+    - name: Deploy password dictionary to kali home
+      copy:
+        dest: /home/kali/passlist.txt
+        content: |
+          password
+          123456
+          admin
+          password123
+          operator
+          operator123
+          letmein
+          oracle
+          engineer
+          engineer123
+          bacon
+        mode: '0644'
+      when: kali_home.stat.exists
