@@ -7,24 +7,24 @@ hosts:
 
   - name: dmz-jump
     base_box: { image: debian-12-x86_64, mgmt_user: debian }
-    flavor: standard.small
+    flavor: ot.jump
 
   - name: scada-hmi
     base_box: { image: debian-12-x86_64, mgmt_user: debian }
-    flavor: standard.small
+    flavor: ot.hmi
 
   - name: engineering-station
     base_box: { image: debian-12-x86_64, mgmt_user: debian }
-    flavor: standard.small
+    flavor: ot.ews
 
   - name: openplc-node
     base_box: { image: debian-12-x86_64, mgmt_user: debian }
-    flavor: standard.small
+    flavor: ot.plc
 
 routers:
   - name: ot-gateway
     base_box: { image: debian-12-x86_64, mgmt_user: debian }
-    flavor: standard.small
+    flavor: ot.router
 
 networks:
   - name: corporate-net

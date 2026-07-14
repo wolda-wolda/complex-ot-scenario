@@ -1,6 +1,6 @@
 # Operation Waterborne: Industrial Control Hijack and Pivoting (Complex OT Sandbox)
 
-This repository contains the KyPo sandbox definition and training scenario
+This repository contains the CyberRangeCZ sandbox definition and training scenario
 representing a multi-stage cyber intrusion against the **"Resolute" Municipal
 Water Treatment Plant**. The scenario simulates state-sponsored threat actors
 traversing enterprise, industrial DMZ, and process control networks to perform
@@ -100,7 +100,7 @@ The training scenario consists of 8 chronological milestones:
 
 ---
 
-## 4. How to Deploy to KyPo Portal
+## 4. How to Deploy to CyberRangeCZ Portal
 
 9. Push all modifications to your remote Git repository:
 
@@ -110,7 +110,7 @@ The training scenario consists of 8 chronological milestones:
    git push origin main
    ```
 
-10. In the KyPo Portal interface, navigate to **Sandbox Definitions**.
+10. In the CyberRangeCZ Portal interface, navigate to **Sandbox Definitions**.
 11. Re-import or refresh the definition from your repository. If the portal
     exhibits Git caching, specify the latest commit hash (e.g.,
     `03e91bd3d970...`) inside the **Revision** field to bypass the cache and
