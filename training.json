@@ -35,7 +35,7 @@
       "estimated_duration": 2,
       "minimal_possible_solve_time": null,
       "passkey": "start",
-      "cloud_content": "### Scenario Overview\n\nYou are a senior red-team operator hired to conduct an authorized adversarial assessment against the Resolute Water Treatment Facility. The plant uses segregated networks based on the Purdue Model (adapted under the ISA/IEC 62443 zoning standard), but you have gained an initial foothold inside the corporate management network.\n\n### Your Objective\n\nAccess the **`attacker-host`** (your Kali Linux terminal), open the console, and input the passkey **`start`** to initialize the operation.",
+      "cloud_content": "### Scenario Overview\n\nYou are a senior red-team operator hired to conduct an authorized adversarial assessment against the Resolute Water Treatment Facility. The plant uses segregated networks based on the Purdue Model (adapted under the ISA/IEC 62443 zoning standard), but you have gained an initial foothold inside the corporate management network.\n\n### Your Objective\n\nAccess the **`attacker-host`** (your Kali Linux terminal) login credentials: kali, kali, open the console, and input the passkey **`start`** to initialize the operation.",
       "local_content": "Input the passkey **`start`** to unlock the first stage of Operation Waterborne."
     },
     {
