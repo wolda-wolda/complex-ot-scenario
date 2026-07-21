@@ -28,11 +28,11 @@ graph TD
         DMZ[dmz-jump <br> Debian Jump Host]
     end
 
-    subgraph Purdue Level 3: Operations Zone
+    subgraph Purdue Level 2: Supervisory Control Zone
         HMI[scada-hmi <br> Node-RED Supervisory HMI]
     end
 
-    subgraph Purdue Level 2 & 1: Control & Process Zone
+    subgraph Purdue Level 3 & 1: Control & Process Zone
         EWS[engineering-station <br> Administrative EWS]
         PLC[openplc-node <br> Modbus Software PLC]
     end
@@ -56,8 +56,8 @@ graph TD
 | --- | --- | --- | --- | --- | --- | --- |
 | **`attacker-host`** | Level 4/5 | Adversary Workstation | Kali Linux | `kali` | `192.168.128.141` | `10.10.10.50` (`corporate-net`) |
 | **`dmz-jump`** | Level 3.5 | SSH Jump Host | Debian 12 | `standard.small` | `192.168.128.251` | `192.168.50.50` (`dmz-net`) |
-| **`scada-hmi`** | Level 3 | Supervisory HMI | Debian 12 | `standard.small` | `192.168.129.238` | `192.168.100.10` (`operations-net`) |
-| **`engineering-station`** | Level 2 | Admin Station (EWS) | Debian 12 | `standard.small` | `192.168.128.181` | `192.168.20.20` (`control-net`) |
+| **`scada-hmi`** | Level 2 | Supervisory HMI | Debian 12 | `standard.small` | `192.168.129.238` | `192.168.100.10` (`operations-net`) |
+| **`engineering-station`** | Level 3 | Admin Station (EWS) | Debian 12 | `standard.small` | `192.168.128.181` | `192.168.20.20` (`control-net`) |
 | **`openplc-node`** | Level 1 | Modbus Software PLC | Debian 12 | `standard.small` | `192.168.129.203` | `192.168.20.10` (`control-net`) |
 | **`ot-gateway`** | - | Firewall Router | Debian 12 | `standard.small` | `192.168.128.159` | Routing Gateway Interfaces |
 
