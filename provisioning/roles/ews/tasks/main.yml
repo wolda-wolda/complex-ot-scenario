@@ -60,7 +60,7 @@
               try:
                   if not client.connected:
                       client.connect()
-                  result = client.read_holding_registers(0, count=1)
+                  result = client.read_holding_registers(address=0, count=1)
                   if not result.isError():
                       value = result.registers[0]
                       if value == 0:
