@@ -58,6 +58,7 @@
 - name: Install Modbus node inside Node-RED user directory
   npm:
     name: node-red-contrib-modbus
+    version: '5.43.0'
     path: /root/.node-red
     state: present
 
