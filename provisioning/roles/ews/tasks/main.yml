@@ -9,7 +9,7 @@
 
 - name: Install Modbus CLI via pip (simulates EWS software)
   pip:
-    name: modbus_cli
+    name: modbus_cli==0.1.6
     executable: pip3
     extra_args: --break-system-packages
 
@@ -40,7 +40,7 @@
 
 - name: Install pymodbus via pip for safety monitor script
   pip:
-    name: pymodbus
+    name: pymodbus==3.6.8
     executable: pip3
     extra_args: --break-system-packages
 

@@ -9,6 +9,7 @@
   git:
     repo: 'https://github.com/thiagoralves/OpenPLC_v3.git'
     dest: /opt/OpenPLC_v3
+    version: master
 
 - name: Run OpenPLC installer (non-interactive)
   shell: ./install.sh linux
