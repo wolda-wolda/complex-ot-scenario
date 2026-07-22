@@ -4,6 +4,7 @@
     name:
       - nmap
       - tcpdump
+      - netcat-openbsd
     state: present
     update_cache: yes
 
