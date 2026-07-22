@@ -3,7 +3,7 @@
   apt:
     name: [git, autoconf, libtool, make, g++, sqlite3, libsqlite3-dev, python3-pip]
     state: present
-    update_cache: yes
+    update_cache: true
 
 - name: Clone OpenPLC V3 repository
   git:
@@ -43,6 +43,6 @@
 - name: Reload systemd and start OpenPLC
   systemd:
     name: openplc
-    daemon_reload: yes
+    daemon_reload: true
     state: restarted
-    enabled: yes
+    enabled: true

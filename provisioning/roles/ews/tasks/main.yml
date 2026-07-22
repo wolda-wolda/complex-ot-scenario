@@ -5,7 +5,7 @@
       - python3-pip
       - nmap
     state: present
-    update_cache: yes
+    update_cache: true
 
 - name: Install Modbus CLI via pip (simulates EWS software)
   pip:
@@ -109,6 +109,6 @@
 - name: Enable and start safety monitor service
   systemd:
     name: safety-monitor
-    daemon_reload: yes
+    daemon_reload: true
     state: restarted
-    enabled: yes
+    enabled: true

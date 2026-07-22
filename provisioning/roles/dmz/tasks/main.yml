@@ -6,7 +6,7 @@
       - tcpdump
       - netcat-openbsd
     state: present
-    update_cache: yes
+    update_cache: true
 
 - name: Create operator user group
   group:

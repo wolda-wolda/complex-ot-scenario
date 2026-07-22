@@ -5,7 +5,7 @@
       - nodejs
       - npm
     state: present
-    update_cache: yes
+    update_cache: true
 
 - name: Install Node-RED globally
   npm:
@@ -51,9 +51,9 @@
 - name: Start and enable Node-RED service
   systemd:
     name: nodered
-    daemon_reload: yes
+    daemon_reload: true
     state: started
-    enabled: yes
+    enabled: true
 
 - name: Install Modbus node inside Node-RED user directory
   npm:

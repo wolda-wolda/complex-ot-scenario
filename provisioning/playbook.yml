@@ -1,36 +1,36 @@
 - name: Configure the Gateway Router
   hosts: ot-gateway
-  become: yes
+  become: true
   roles:
     - router
 
 - name: Configure the SCADA/HMI Node
   hosts: scada-hmi
-  become: yes
+  become: true
   roles:
     - nodered
 
 - name: Configure the IDMZ Jump Host
   hosts: dmz-jump
-  become: yes
+  become: true
   roles:
     - dmz
 
 - name: Configure the Engineering Workstation
   hosts: engineering-station
-  become: yes
+  become: true
   roles:
     - ews
 
 - name: Configure the Software PLC Node
   hosts: openplc-node
-  become: yes
+  become: true
   roles:
     - openplc
 
 - name: Configure the Attacker Workstation
   hosts: attacker-host
-  become: yes
+  become: true
   tasks:
     - name: Deploy password dictionary to debian home
       copy:
