@@ -80,7 +80,7 @@
         "ssh operator@192.168.50.50",
         "cat flag.txt"
       ],
-      "commands_required": true
+      "commands_required": false
     },
     {
       "title": "RECONNAISSANCE: SCADA HMI Discovery",
@@ -118,7 +118,7 @@
         "nmap.*192.168.100.*",
         "nmap.*-p 1880.*"
       ],
-      "commands_required": true
+      "commands_required": false
     },
     {
       "title": "EXPLOITATION: SCADA HMI Compromise (Florida Oldsmar Incident)",
@@ -237,7 +237,7 @@
         "ssh engineer@192\\.168\\.20\\.20",
         "nmap.*192\\.168\\.20\\..*"
       ],
-      "commands_required": true
+      "commands_required": false
     },
     {
       "title": "SABOTAGE: Modbus Protocol Injection (Industroyer / Stuxnet)",
@@ -284,7 +284,7 @@
         "modbus.*192\\.168\\.20\\.10.*",
         "cat.*/var/log/safety_override.*"
       ],
-      "commands_required": true
+      "commands_required": false
     },
     {
       "title": "Knowledge Assessment",
