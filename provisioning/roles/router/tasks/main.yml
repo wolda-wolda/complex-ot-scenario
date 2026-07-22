@@ -32,6 +32,15 @@
     jump: ACCEPT
     action: insert
 
+# 3.5 Allow SCADA HMI reverse shell callbacks to Corporate network
+- name: Allow reverse shell connections from SCADA HMI to Corporate network
+  iptables:
+    chain: FORWARD
+    source: 192.168.100.10
+    destination: 10.10.10.0/24
+    jump: ACCEPT
+    action: insert
+
 # 4. Allow EWS to communicate with PLC via Modbus TCP (502)
 - name: Allow Modbus TCP traffic from Engineering Workstation to OpenPLC
   iptables:
